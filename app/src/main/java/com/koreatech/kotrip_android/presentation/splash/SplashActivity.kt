@@ -10,7 +10,6 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MotivooTheme {
-test
             }
         }
     }
