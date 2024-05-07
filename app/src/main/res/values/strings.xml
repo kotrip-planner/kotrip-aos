@@ -1,3 +1,35 @@
 <resources>
     <string name="app_name">Kotrip-Android</string>
+    <string name="kotrip">Kotrip</string>
+
+    <!-- 로그인 -->
+    <string name="login_title">도시탐방</string>
+    <string name="login_kakao">카카오 로그인</string>
+
+    <!-- 온보딩 -->
+    <string name="onboard_select_entry_schedule_history_title">일정 히스토리</string>
+    <string name="onboard_select_entry_schedule_history_content">나의 일정 모아보기</string>
+    <string name="onboard_select_entry_schedule_title">일정 생성</string>
+    <string name="onboard_select_entry_schedule_content">새로운 나의 일정을 생성해보세요</string>
+    <string name="onboard_select_entry_schedule_oneday_title">당일치기</string>
+    <string name="onboard_select_entry_schedule_oneday_content">당일치기 여행 일정을 생성해보세요</string>
+    <string name="onboard_select_entry_schedule_history">나의 일정을\n확인해보세요.</string>
+    <string name="onboard_select_entry_new_schedule">새로운 나의 일정을\n만들어보세요.</string>
+    <string name="onboard_select_trip_title">국내 여행지 선정</string>
+    <string name="onboard_select_trip_sub_title">여행지 선정</string>
+    <string name="onboard_select_schedule_title">여행 일정을 입력해주세요</string>
+    <string name="onboard_select_schedule_sub_title">여행 일정 선정</string>
+    <string name="onboard_select_schedule_oneday_warning_text">* 해당 여행일정은 당일치기이므로, 1일 선택 가능</string>
+    <string name="onboard_select_schedule_warning_text">* 여행일정은 최대 5일까지 가능</string>
+    
+    <!-- 홈 -->
+    <string name="home_add_schedule">일정 추가</string>
+    <string name="home_add_schedule_content">여행 일정을 추가해주세요.</string>
+    <string name="home_start_point">출발지점</string>
+    <string name="home_destination_point">도착지점</string>
+    <string name="home_oneday">당일치기</string>
+
+    <!-- 여행 -->
+    <string name="tour_history_look_forward">나의 여행 일정 살펴보기</string>
+    <string name="tour_history">여행 기록</string>
 </resources>
