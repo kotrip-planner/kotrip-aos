@@ -1,10 +1,14 @@
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+import io.netty.util.ReferenceCountUtil.release
+import org.jetbrains.kotlin.konan.properties.Properties
 
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("kotlin-parcelize")
 }
+
+
 
 android {
     namespace = "com.koreatech.kotrip_android"
@@ -25,6 +29,15 @@ android {
         resValue("string", "naver_map_key", getPropertyKey("naver_map_key"))
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("kotrip.jks")
+            storePassword = getPropertyKey("key_password")
+            keyAlias = getPropertyKey("key_alias")
+            keyPassword = getPropertyKey("key_password")
+        }
+    }
+
     buildFeatures {
         compose = true
         viewBinding = true
@@ -34,6 +47,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -70,7 +84,6 @@ dependencies {
     androidTestImplementation(composeBom)
 
 
-
     // Material Design 3
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.ui:ui")
@@ -79,7 +92,7 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.8.2")
     // Optional - Integration with ViewModels
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
-    implementation ("androidx.lifecycle:lifecycle-runtime-compose:2.6.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.0")
     // Optional - Integration with LiveData
     implementation("androidx.compose.runtime:runtime-livedata")
     // Optional - Integration with RxJava
@@ -112,27 +125,27 @@ dependencies {
     implementation("io.insert-koin:koin-android:3.1.5")
 
     // accompanist
-    implementation ("com.google.accompanist:accompanist-systemuicontroller:0.27.0")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.27.0")
 
     // calendar
     // The view calendar library
-    implementation ("com.kizitonwose.calendar:view:2.5.0")
+    implementation("com.kizitonwose.calendar:view:2.5.0")
 
     // The compose calendar library
-    implementation ("com.kizitonwose.calendar:compose:2.5.0")
+    implementation("com.kizitonwose.calendar:compose:2.5.0")
 
     // naver map
-    implementation ("com.naver.maps:map-sdk:3.17.0")
+    implementation("com.naver.maps:map-sdk:3.17.0")
 
     // compose naver
-    implementation ("io.github.fornewid:naver-map-compose:1.5.5")
+    implementation("io.github.fornewid:naver-map-compose:1.5.5")
 
     // 위치추적 compose naver
-    implementation ("com.google.android.gms:play-services-location:16.0.0")
-    implementation ("io.github.fornewid:naver-map-location:16.0.0")
+    implementation("com.google.android.gms:play-services-location:16.0.0")
+    implementation("io.github.fornewid:naver-map-location:16.0.0")
 
     // preferences datastore
-    implementation ("androidx.datastore:datastore-preferences:1.0.0")
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
 }
 
 fun getPropertyKey(propertyKey: String): String {
