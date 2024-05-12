@@ -23,15 +23,22 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import com.koreatech.kotrip_android.R
 import com.koreatech.kotrip_android.data.model.response.HotelResponseDto
 import com.koreatech.kotrip_android.data.model.response.OptimalToursResponseDto
 import com.koreatech.kotrip_android.presentation.components.HotelRow
 import com.koreatech.kotrip_android.presentation.components.organisms.HotelDetailDialog
+import com.koreatech.kotrip_android.presentation.theme.MarkerBlue
+import com.koreatech.kotrip_android.presentation.theme.MarkerBlueBold
+import com.koreatech.kotrip_android.presentation.theme.Orange4d
+import com.koreatech.kotrip_android.presentation.theme.Orange_FFCD4C
 import com.koreatech.kotrip_android.presentation.theme.Pink
+import com.koreatech.kotrip_android.presentation.views.optimal.createBitmap
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraPosition
 import com.naver.maps.map.compose.CameraPositionState
+import com.naver.maps.map.compose.CircleOverlay
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
 import com.naver.maps.map.compose.MapUiSettings
 import com.naver.maps.map.compose.Marker
@@ -40,6 +47,10 @@ import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.PathOverlay
 import com.naver.maps.map.compose.rememberCameraPositionState
 import com.naver.maps.map.overlay.OverlayImage
+import java.lang.Math.atan2
+import java.lang.Math.cos
+import java.lang.Math.sin
+import java.lang.Math.sqrt
 
 @OptIn(ExperimentalNaverMapApi::class)
 @Composable
@@ -89,11 +100,25 @@ fun HotelPage(
             ),
             modifier = Modifier.height(300.dp)
         ) {
+            CircleOverlay(
+                center = LatLng(
+                    (firstRoutes.last().latitude + secondRoutes.first().latitude) / 2,
+                    (firstRoutes.last().longitude + secondRoutes.first().longitude) / 2
+                ),
+                radius = haversine(
+                    firstRoutes.last().latitude,
+                    firstRoutes.last().longitude,
+                    secondRoutes.first().latitude,
+                    secondRoutes.first().longitude
+                ),
+                color = Orange4d,
+                outlineWidth = 1.dp,
+                outlineColor = Orange_FFCD4C
+            )
             hotels.forEachIndexed { index, hotel ->
                 val markerPosition = LatLng(hotel.latitude, hotel.longitude)
                 Marker(
                     state = MarkerState(markerPosition),
-                    captionText = "${hotel.title}",
                     icon = OverlayImage.fromResource(R.drawable.ic_hotel),
                     onClick = {
                         hotelDetailInfo = hotel
@@ -106,31 +131,30 @@ fun HotelPage(
                 val tourPosition = LatLng(tour.latitude, tour.longitude)
                 Marker(
                     state = MarkerState(tourPosition),
-                    captionText = "${tour.title}\n${position + 1} - ${index + 1}",
-                    icon = OverlayImage.fromResource(R.drawable.ic_marker),
+                    captionText = tour.title,
+                    icon = OverlayImage.fromBitmap(createBitmap("${position + 1}-${index + 1}", context, ContextCompat.getColor(context, R.color.marker_blue_bold))),
                 )
                 PathOverlay(
                     coords = paths[position],
-                    width = 2.dp,
-                    color = Color.Blue,
-                    outlineWidth = 0.dp,
-                    outlineColor = Color.Blue,
+                    width = 4.dp,
+                    color = MarkerBlueBold,
+                    outlineWidth = 1.dp,
+                    outlineColor = Color.Black,
                 )
             }
             secondRoutes.forEachIndexed { index, tour ->
                 val tourPosition = LatLng(tour.latitude, tour.longitude)
                 Marker(
                     state = MarkerState(tourPosition),
-                    captionText = "${tour.title}\n${position + 2} - ${index + 1}",
-                    icon = OverlayImage.fromResource(R.drawable.ic_marker),
-                    iconTintColor = Color.Red,
+                    captionText = tour.title,
+                    icon = OverlayImage.fromBitmap(createBitmap("${position + 2}-${index + 1}", context, ContextCompat.getColor(context, R.color.marker_blue))),
                 )
                 PathOverlay(
                     coords = paths[position + 1],
                     width = 2.dp,
-                    color = Pink,
-                    outlineWidth = 0.dp,
-                    outlineColor = Pink,
+                    color = MarkerBlue,
+                    outlineColor = Color.Black,
+                    outlineWidth = 1.dp
                 )
             }
         }
@@ -170,4 +194,17 @@ fun HotelPage(
         }
 
     }
+}
+
+fun haversine(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+    val R = 6371000.0 // 지구 반지름 (킬로미터)
+    val latDistance = Math.toRadians(lat2 - lat1)
+    val lonDistance = Math.toRadians(lon2 - lon1)
+    val a = sin(latDistance / 2) * sin(latDistance / 2) +
+            cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) *
+            sin(lonDistance / 2) * sin(lonDistance / 2)
+    val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    val distance = R * c
+
+    return distance / 2
 }

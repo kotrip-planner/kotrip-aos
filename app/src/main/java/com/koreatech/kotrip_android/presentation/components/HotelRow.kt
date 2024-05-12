@@ -83,7 +83,7 @@ fun HotelRow(
                 .crossfade(true)
                 .build(),
             contentDescription = null,
-            contentScale = ContentScale.Crop,
+            contentScale = ContentScale.Fit,
             modifier = Modifier
                 .width(50.dp)
                 .height(50.dp),

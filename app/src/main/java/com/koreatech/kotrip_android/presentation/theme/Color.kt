@@ -19,3 +19,4 @@ val Green = Color(0xFFFFFFFF)
 
 val MarkerBlueBold = Color(0xFFFF9800)
 val MarkerBlue = Color(0xffFFE5BE)
+val Orange4d = Color(0x4dFFE5BE)
