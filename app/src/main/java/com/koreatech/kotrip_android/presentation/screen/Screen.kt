@@ -59,15 +59,17 @@ sealed class Screen(
     )
 
     data object Hotel : Screen(
-        route = "hotel/{$x}/{$y}/{$position}",
+        route = "hotel/{$x}/{$y}/{$bx}/{$by}/{$position}",
         navArgument = listOf(
-            navArgument(x) { type = NavType.FloatType },
-            navArgument(y) { type = NavType.FloatType },
+            navArgument(x) { type = NavType.StringType },
+            navArgument(y) { type = NavType.StringType },
+            navArgument(bx) { type = NavType.StringType },
+            navArgument(by) { type = NavType.StringType },
             navArgument(position) { type = NavType.IntType },
         )
     ) {
-        fun createRoute(x: Float, y: Float, position: Int) =
-            "hotel/$x/$y/$position"
+        fun createRoute(x: String, y: String, bx: String, by: String, position: Int) =
+            "hotel/$x/$y/$bx/$by/$position"
     }
 
     companion object {
@@ -77,6 +79,8 @@ sealed class Screen(
         const val day = "day"
         const val x = "x"
         const val y = "y"
+        const val bx = "bx"
+        const val by = "by"
         const val position = "position"
     }
 }

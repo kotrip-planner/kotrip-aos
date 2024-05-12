@@ -1,5 +1,6 @@
 package com.koreatech.kotrip_android.presentation.views.tour
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,11 +10,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,9 +33,15 @@ import com.koreatech.kotrip_android.presentation.theme.Orange_FFCD4C
 import com.koreatech.kotrip_android.presentation.views.home.HomeState
 import com.koreatech.kotrip_android.presentation.views.trip.setUpTwoGrip
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TourPage(
     day: Int,
+    selectedId: Int,
+    onSelectedIdChanged: (tourInfo: TourInfo, id: Int) -> Unit,
+    selectedTours: List<TourInfo>,
+    searchText: String,
+    onSearchTextChanged: (text: String) -> Unit,
     cityInfo: CityInfo,
     state: HomeState,
     oneDayStartTourInfo: TourInfo?,
@@ -43,6 +52,7 @@ fun TourPage(
     onClickTour: (List<TourInfo>) -> Unit,
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -56,6 +66,15 @@ fun TourPage(
                 )
             }
 
+            stickyHeader {
+                TextField(
+                    value = searchText,
+                    onValueChange = onSearchTextChanged,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+            }
+
             item {
                 LazyRow(
                     modifier = Modifier.fillMaxWidth()
@@ -65,10 +84,8 @@ fun TourPage(
                             KotripTourRow(tourInfo = oneDayStartTourInfo)
                         }
                     }
-                    rememberTours.filter { it.isSelected }.forEach { tourinfo ->
-                        item {
-                            KotripTourRow(tourInfo = tourinfo)
-                        }
+                    items(rememberTours) { it ->
+                        KotripTourRow(tourInfo = it)
                     }
                 }
                 Spacer(modifier = Modifier.height(10.dp))
@@ -76,8 +93,11 @@ fun TourPage(
 
 
 
-            setUpTwoGrip(tours) { one, two ->
+            setUpTwoGrip(tours) { one, two, _, _ ->
                 TourTwoCard(
+                    selectedId = selectedId,
+                    onSelectedIdChanged = onSelectedIdChanged,
+                    selectedTours = selectedTours,
                     one = one,
                     onClickedOne = { tourInfo ->
                         one?.let { onClick(tourInfo) }
@@ -94,31 +114,31 @@ fun TourPage(
             }
         }
 
-        ExtendedFloatingActionButton(
-            onClick = {
-                val tourList = mutableListOf<TourInfo>()
-                tours.filter { it.isSelected }.forEach {
-                    tourList.add(it)
-                }
-                onClickTour(
-                    tourList
-                )
-            },
-            content = {
-                Icon(
-                    imageVector = Icons.Default.LocationOn,
-                    contentDescription = null,
-                    tint = Orange_FF9800
-                )
-                Spacer(modifier = Modifier.width(5.dp))
-                Text(text = "관광지 선정하기")
-            },
-            containerColor = Orange_FFCD4C,
-            contentColor = Color.Black,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(10.dp)
-                .alpha(if (day == -1) 0f else 1f)
-        )
+//        ExtendedFloatingActionButton(
+//            onClick = {
+//                val tourList = mutableListOf<TourInfo>()
+//                tours.filter { it.isSelected }.forEach {
+//                    tourList.add(it)
+//                }
+//                onClickTour(
+//                    tourList
+//                )
+//            },
+//            content = {
+//                Icon(
+//                    imageVector = Icons.Default.LocationOn,
+//                    contentDescription = null,
+//                    tint = Orange_FF9800
+//                )
+//                Spacer(modifier = Modifier.width(5.dp))
+//                Text(text = "관광지 선정하기")
+//            },
+//            containerColor = Orange_FFCD4C,
+//            contentColor = Color.Black,
+//            modifier = Modifier
+//                .align(Alignment.BottomEnd)
+//                .padding(10.dp)
+//                .alpha(if (day == -1) 0f else 1f)
+//        )
     }
 }

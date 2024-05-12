@@ -41,7 +41,7 @@ fun HistoryPage(
 
 
             if (tourHistories.isNotEmpty()) {
-                setUpTwoGrip(tourHistories) { one, two ->
+                setUpTwoGrip(tourHistories) { one, two, _, _ ->
                     TourHistoryTwoCard(
                         one = one,
                         onClickedOne = { one?.let { onClick(one.uuid) } },

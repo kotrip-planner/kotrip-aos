@@ -13,6 +13,9 @@ import com.koreatech.kotrip_android.model.home.TourInfo
 
 @Composable
 fun TourTwoCard(
+    selectedId: Int,
+    onSelectedIdChanged: (tourInfo: TourInfo, id: Int) -> Unit,
+    selectedTours: List<TourInfo>,
     one: TourInfo? = null,
     onClickedOne: ((tourInfo: TourInfo) -> Unit)? = null,
     two: TourInfo? = null,
@@ -26,6 +29,9 @@ fun TourTwoCard(
         if (one != null) {
             TourCard(
                 tourInfo = one,
+                selectedId = selectedId,
+                onSelectedIdChanged = onSelectedIdChanged,
+                selectedTours = selectedTours,
                 onClick = { tourInfo ->
                     onClickedOne?.invoke(tourInfo) },
                 modifier = Modifier
@@ -38,6 +44,9 @@ fun TourTwoCard(
         if (two != null) {
             TourCard(
                 tourInfo = two,
+                selectedId = selectedId,
+                selectedTours = selectedTours,
+                onSelectedIdChanged = onSelectedIdChanged,
                 onClick = { tourInfo ->
                     onClickedTwo?.invoke(tourInfo)
                           },

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -40,10 +41,16 @@ fun KotripOptimalItem(
     tourInfo: OptimalToursResponseDto,
     position: Int = 0, // 1 : 출발지점 , 2 : 도착지점, -1 : 출발,도착 x 마지막 부분
     modifier: Modifier = Modifier,
+    onClick: (tourInfo: OptimalToursResponseDto) -> Unit
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
+            .clickable(
+                onClick = {
+                    onClick(tourInfo)
+                }
+            )
             .padding(horizontal = 4.dp)
             .fillMaxWidth()
             .wrapContentHeight()
@@ -134,7 +141,8 @@ fun KotripOptimalItemPreview() {
                 imageUrl = "asdf",
                 latitude = 0.0,
                 longitude = 0.0
-            )
+            ),
+            onClick = {}
         )
     }
 }
@@ -152,7 +160,8 @@ fun KotripOptimalItemPreview1() {
                 imageUrl = "asdf",
                 latitude = 0.0,
                 longitude = 0.0
-            )
+            ),
+            onClick = {}
         )
     }
 }
@@ -170,7 +179,8 @@ fun KotripOptimalItemPreview2() {
                 imageUrl = "asdf",
                 latitude = 0.0,
                 longitude = 0.0
-            )
+            ),
+            onClick = {}
         )
     }
 }

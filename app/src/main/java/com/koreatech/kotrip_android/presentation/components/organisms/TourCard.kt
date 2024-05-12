@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -34,11 +35,21 @@ import com.koreatech.kotrip_android.model.home.TourInfo
 @Composable
 fun TourCard(
     tourInfo: TourInfo,
+    selectedId: Int,
+    onSelectedIdChanged: (tourInfo: TourInfo, id: Int) -> Unit,
+    selectedTours: List<TourInfo>,
     onClick: (tourInfo: TourInfo) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Card(
         modifier = modifier,
+//            .selectable(
+//            selected = selectedId == tourInfo.id,
+//            onClick = {
+//                if (selectedId == tourInfo.id) onSelectedIdChanged(tourInfo, -1)
+//                else onSelectedIdChanged(tourInfo, tourInfo.id)
+//            }
+//        ),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(4.dp),
         onClick = {
@@ -67,7 +78,7 @@ fun TourCard(
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(tourInfo.imageUrl)
-                        .crossfade(true)
+//                        .crossfade(true)
                         .build(),
                     error = painterResource(id = R.drawable.img_empty_tour),
                     contentScale = ContentScale.Crop,
@@ -75,9 +86,11 @@ fun TourCard(
                     modifier = Modifier
                         .size(width = 200.dp, height = 100.dp)
                         .clip(RoundedCornerShape(16.dp))
-                        .alpha(if (tourInfo.isSelected) 0.5f else 1f)
+                        .alpha(if(selectedTours.contains(tourInfo)) 0.5f else 1f)
                 )
-                if (tourInfo.isSelected) {
+                if(selectedTours.contains(tourInfo)) {
+//                if (selectedId == tourInfo.id) {
+//                if (tourInfo.isSelected) {
                     Image(
                         painter = painterResource(id = R.drawable.img_check),
                         contentDescription = null,

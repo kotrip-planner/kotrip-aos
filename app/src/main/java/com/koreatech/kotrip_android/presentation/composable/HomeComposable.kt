@@ -1,17 +1,21 @@
 package com.koreatech.kotrip_android.presentation.composable
 
+import android.util.Log
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.koreatech.kotrip_android.di.getActivityComposeViewModel
 import com.koreatech.kotrip_android.model.home.TourInfo
 import com.koreatech.kotrip_android.model.trip.CityInfo
+import com.koreatech.kotrip_android.presentation.components.organisms.TourAddDialog
+import com.koreatech.kotrip_android.presentation.components.organisms.TourRemoveDialog
 import com.koreatech.kotrip_android.presentation.screen.Screen
 import com.koreatech.kotrip_android.presentation.utils.getOptimalRouteRequestDto
 import com.koreatech.kotrip_android.presentation.utils.inRangeList
@@ -30,6 +34,7 @@ fun NavGraphBuilder.homeComposable(navController: NavController) {
         route = Screen.Home.route,
         arguments = Screen.Home.navArgument
     ) { backEntry ->
+        var originBackPressedTime: Long = System.currentTimeMillis()
         val context = LocalContext.current
         val focusManager = LocalFocusManager.current
         val viewModel = getActivityComposeViewModel<HomeViewModel>()
@@ -45,9 +50,17 @@ fun NavGraphBuilder.homeComposable(navController: NavController) {
             emptyList()
         }
 
-        if (viewModel.homeTourList.size != dateList.size) {
+        val homeTours = viewModel.homeTours.collectAsStateWithLifecycle()
+        if (homeTours.value.size != dateList.size) {
             viewModel.setHomeTourListSize(List(dateList.size) { mutableListOf() })
         }
+        Log.e("aaa", "homeTours : ${homeTours}")
+
+//        if (viewModel.homeTourList.size != dateList.size) {
+//            viewModel.setHomeTourListSize(List(dateList.size) { mutableListOf() })
+//        }
+
+        val selectedTours = viewModel.selectedTours.collectAsStateWithLifecycle()
 
         if (viewModel.homeOneDayTourList.isEmpty()) {
             viewModel.setHomeOneDayTourListSize(mutableListOf())
@@ -59,6 +72,10 @@ fun NavGraphBuilder.homeComposable(navController: NavController) {
 
         val oneDayTourList by remember {
             mutableStateOf(viewModel.homeOneDayTourList)
+        }
+
+        var optimalTitleVisible by remember {
+            mutableStateOf(false)
         }
 
         viewModel.collectSideEffect {
@@ -91,15 +108,28 @@ fun NavGraphBuilder.homeComposable(navController: NavController) {
             }
         }
 
+        Log.e("aaa", "homeTours.value : ${homeTours.value}")
         HomePage(
             context = context,
             focusManager = focusManager,
+            optimalTitleVisible = optimalTitleVisible,
+            onDismissTitleVisible = {
+                optimalTitleVisible = false
+            },
+            onTopBarButtonClick = {
+                if (homeTours.value.any { it.isEmpty() }) {
+                    viewModel.showToast("일차마다 관광지가 포함되어야 합니다.")
+                } else {
+                    optimalTitleVisible = true
+                }
+            },
             cityInfo = viewModel.cityInfo ?: CityInfo(),
             startDate = viewModel.tourDate?.start.toString(),
             endDate = viewModel.tourDate?.end.toString(),
             isOneDay = isOneDay,
             dateList = if (viewModel.tourDate?.end == null) emptyList() else dateList,
-            tourList = tourList,
+            tourList = homeTours.value,
+            selectedTours = selectedTours.value,
             oneDayTourList = oneDayTourList,
             oneDayTourInfo = viewModel.homeOneDayStartTourInfo,
             state = state,
@@ -109,7 +139,7 @@ fun NavGraphBuilder.homeComposable(navController: NavController) {
             onOneDayTourClick = {
                 viewModel.moveToTourStep(-2, isOneDay)
             },
-            onCreateTour = {
+            onCreateTour = { title ->
                 if (isOneDay) {
                     if (viewModel.homeOneDayStartTourInfo == null) {
                         viewModel.showToast("출발지를 선정해주세요.")
@@ -121,28 +151,54 @@ fun NavGraphBuilder.homeComposable(navController: NavController) {
                         Timber.e("aaa oneday list : ${viewModel.homeOneDayTourList}")
                     }
                 } else {
-                    var flag = true
-                    val position = mutableListOf<Int>()
-                    viewModel.tourDate?.total?.let {
-                        repeat(it) { index ->
-                            if (viewModel.homeTourList[index].isEmpty()) {
-                                flag = false
-                                position.add(index)
-                            }
-                        }
-                    }
-                    if (position.isNotEmpty()) {
-                        viewModel.showToast("${position.first() + 1} 일차 관광지를 선정해주세요.")
-                    }
-                    if (flag) {
+                    Log.e("aaa", "click selectedTours : ${selectedTours.value}")
+                    Log.e("aaa", "click homeTours : ${homeTours.value}")
+                    var flag = false
+                    // 총 관광지의 갯수가 총일차 * 4 를 넘어서는 안된다.
+                    // 즉, 4일차면 16개의 관광지만 최적의 경로로 뽑을 수 있음
+                    if (selectedTours.value.size <= dateList.size * 4) {
                         viewModel.setOptimalRoute(
-                            viewModel.cityInfo?.areaId ?: 0,
-                            getOptimalRouteRequestDto(
+                            title = title,
+                            areaId = viewModel.cityInfo?.areaId ?: 0,
+                            optimalRoutes = getOptimalRouteRequestDto(
                                 viewModel.tourDate?.onPrintDateRange(),
-                                viewModel.homeTourList
+                                homeTours.value
                             )
                         )
+                    } else {
+                        viewModel.showToast("총 관광지는 ${dateList.size * 4}를 넘을 수 없다.")
                     }
+//                    var flag = true
+//                    val position = mutableListOf<Int>()
+//                    viewModel.tourDate?.total?.let {
+//                        repeat(it) { index ->
+//                            if (viewModel.homeTourList[index].isEmpty()) {
+//                                flag = false
+//                                position.add(index)
+//                            }
+//                        }
+//                    }
+//                    if (position.isNotEmpty()) {
+//                        viewModel.showToast("${position.first() + 1} 일차 관광지를 선정해주세요.")
+//                    }
+//                    if (flag) {
+//                        viewModel.setOptimalRoute(
+//                            title = title,
+//                            areaId = viewModel.cityInfo?.areaId ?: 0,
+//                            optimalRoutes = getOptimalRouteRequestDto(
+//                                viewModel.tourDate?.onPrintDateRange(),
+//                                viewModel.homeTourList
+//                            )
+//                        )
+//                    }
+                }
+            },
+            onBackPressed = {
+                if (System.currentTimeMillis() - originBackPressedTime > 2000) {
+                    originBackPressedTime = System.currentTimeMillis()
+                    showToast(context, "뒤로가기 한 번 더 누르면, 종료합니다.")
+                } else {
+                    navController.popBackStack()
                 }
             }
         )
@@ -161,9 +217,27 @@ fun NavGraphBuilder.tourComposable(navController: NavController) {
         val day = backEntry.arguments?.getInt(Screen.day) ?: 0
         viewModel.getTour()
 
-        val tours = mutableStateListOf<TourInfo>()
-        tours.addAll(state.tours)
+        val tours = viewModel.tours.collectAsStateWithLifecycle()
+        val searchText by viewModel.searchText.collectAsStateWithLifecycle()
+        val selectedTours = viewModel.selectedTours.collectAsStateWithLifecycle()
+        var selectedId by remember {
+            mutableStateOf(-1)
+        }
+        var dialogVisible by remember {
+            mutableStateOf(false)
+        }
+        var dialogTourInfo by remember {
+            mutableStateOf<TourInfo?>(null)
+        }
+        var dialogRemoveVisible by remember {
+            mutableStateOf(false)
+        }
+        var dialogRemoveTourInfo by remember {
+            mutableStateOf<TourInfo?>(null)
+        }
 
+//        val tours = mutableStateListOf<TourInfo>()
+//        tours.addAll(state.tours)
         viewModel.collectSideEffect {
             when (it) {
                 is HomeSideEffect.Toast -> showToast(context, it.message)
@@ -171,13 +245,51 @@ fun NavGraphBuilder.tourComposable(navController: NavController) {
             }
         }
 
+
+
+
+        TourAddDialog(
+            context = context,
+            tourInfo = dialogTourInfo,
+            visible = dialogVisible,
+            onDismissRequest = { dialogVisible = false },
+            onButtonClick = { it ->
+                viewModel.onSelectedTours(it)
+                dialogVisible = false
+                viewModel.addItemHomeTourList(day, it)
+            }
+        )
+
+        TourRemoveDialog(
+            context = context,
+            tourInfo = dialogRemoveTourInfo,
+            visible = dialogRemoveVisible,
+            onDismissRequest = { dialogRemoveVisible = false },
+            onButtonClick = {
+                viewModel.onRemoveTours(it)
+                dialogRemoveVisible = false
+                viewModel.removeItemHomeTourList(day, it)
+            }
+        )
+
         TourPage(
             day = day + 1,
+            selectedId = selectedId,
+            onSelectedIdChanged = { tourInfo, id ->
+//                selectedId = id
+//                if (id != -1) {
+//                    dialogTourInfo = tourInfo
+//                    dialogVisible = true
+//                }
+            },
+            selectedTours = selectedTours.value,
+            searchText = searchText,
+            onSearchTextChanged = viewModel::onSearchTextChange,
             cityInfo = viewModel.cityInfo ?: CityInfo(),
             state = state,
             oneDayStartTourInfo = viewModel.homeOneDayStartTourInfo,
-            rememberTours = if (isOneDay) viewModel.homeOneDayTourList else viewModel.homeTourList[day],
-            tours = tours,
+            rememberTours = if (isOneDay) viewModel.homeOneDayTourList else selectedTours.value,
+            tours = tours.value,
             onClick = { tourInfo ->
                 if (isOneDay) {
                     if (day == -2) {
@@ -196,47 +308,70 @@ fun NavGraphBuilder.tourComposable(navController: NavController) {
                                 .isNotEmpty() || viewModel.homeOneDayStartTourInfo?.id == tourInfo.id) {
                             viewModel.showToast("중복되는 관광지는 선택할 수 없습니다.")
                         } else {
-                            val position = tours.indexOfFirst { it.id == tourInfo.id }
+                            val position = tours.value.indexOfFirst { it.id == tourInfo.id }
                             val updatedTourInfo =
-                                tours[position].copy(isSelected = !tourInfo.isSelected)
-                            tours[position] = updatedTourInfo
+                                tours.value[position].copy(isSelected = !tourInfo.isSelected)
+                            viewModel.updateToursSelection(position, updatedTourInfo)
+//                            tours.value[position] = updatedTourInfo
                         }
                     }
                 } else {
-                    if (viewModel.homeTourList[day].filter { it.id == tourInfo.id }.isNotEmpty()) {
-                        viewModel.showToast("중복되는 관광지는 선택할 수 없습니다.")
+                    if (selectedTours.value.contains(tourInfo)) {
+                        viewModel.showToast("중복되는 관광지는 삭제해야 합니다.")
+                        dialogRemoveVisible = true
+                        dialogRemoveTourInfo = tourInfo
                     } else {
-                        val position = tours.indexOfFirst { it.id == tourInfo.id }
-                        val updatedTourInfo =
-                            tours[position].copy(isSelected = !tourInfo.isSelected)
-                        tours[position] = updatedTourInfo
+                        dialogTourInfo = tourInfo
+                        dialogVisible = true
+                        viewModel.showToast("관광지 선택 가능")
                     }
+
+
+//                        Log.e("aaa", "중복 관광지? : ${tourInfo.title}")
+//                    if (viewModel.homeTourList[day].filter { it.id == tourInfo.id }.isNotEmpty()) {
+//                        viewModel.showToast("중복되는 관광지는 선택할 수 없습니다.")
+//                    } else {
+//                        var flag = false
+//                        viewModel.homeTourList.forEach { tourList ->
+//                            if (tourList.filter { it.id == tourInfo.id }.isNotEmpty()) {
+//                                viewModel.showToast("중복되는 관광지는 선택할 수 없습니다.")
+//                                flag = true
+//                            }
+//                        }
+//                        if (!flag) {
+//                            val position = tours.value.indexOfFirst { it.id == tourInfo.id }
+//                            val updatedTourInfo =
+//                                tours.value[position].copy(isSelected = !tourInfo.isSelected)
+//                            viewModel.updateToursSelection(position, updatedTourInfo)
+////                            tours.value[position] = updatedTourInfo
+//                        }
+//                    }
                 }
 
             },
             onClickTour = { selectTours ->
                 if (selectTours.isEmpty()) {
-                    viewModel.showToast("관광지를 하나라도 선택해야 합니다.")
+//                    viewModel.showToast("관광지를 하나라도 선택해야 합니다.")
                 } else {
-                    if (isOneDay) {
-                        if (viewModel.homeOneDayTourList.size > 10 || viewModel.homeOneDayTourList.size + selectTours.size > 10) {
-                            viewModel.showToast("관광지는 최대 10까지 담을 수 있습니다.")
-                        } else {
-                            selectTours.forEach { item ->
-                                viewModel.addItemHomeOneDayTourList(item)
-                            }
-                            navController.popBackStack()
-                        }
-                    } else {
-                        if (viewModel.homeTourList[day].size > 4 || viewModel.homeTourList[day].size + selectTours.size > 4) {
-                            viewModel.showToast("관광지는 최대 4까지 담을 수 있습니다.")
-                        } else {
-                            selectTours.forEach { item ->
-                                viewModel.addItemHomeTourList(day, item)
-                            }
-                            navController.popBackStack()
-                        }
-                    }
+//                    if (isOneDay) {
+//                        if (viewModel.homeOneDayTourList.size > 10 || viewModel.homeOneDayTourList.size + selectTours.size > 10) {
+//                            viewModel.showToast("관광지는 최대 10까지 담을 수 있습니다.")
+//                        } else {
+//                            selectTours.forEach { item ->
+//                                viewModel.addItemHomeOneDayTourList(item)
+//                            }
+//                            navController.popBackStack()
+//                        }
+//                    } else {
+//                        if (viewModel.homeTourList[day].size > 4 || viewModel.homeTourList[day].size + selectTours.size > 4) {
+//                            viewModel.showToast("관광지는 최대 4까지 담을 수 있습니다.")
+//                        } else {
+//                            selectTours.forEach { item ->
+//                                viewModel.addItemHomeTourList(day, item)
+//                            }
+//                            navController.popBackStack()
+//                        }
+//                    }
                 }
             }
         )

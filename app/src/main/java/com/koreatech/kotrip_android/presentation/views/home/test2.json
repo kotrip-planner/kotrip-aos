@@ -1,0 +1,90 @@
+{
+  "code": 200,
+  "status": "OK",
+  "message": "OK",
+  "data": {
+    "title": "부산 여행",
+    "uuid": "6e1aa0cb-a9a0-4668-ba2b-7ed0677635b9",
+    "city": "부산",
+    "schedule": [
+      {
+        "date": "2024-04-21",
+        "tours": [
+          {
+            "id": 9,
+            "title": "할매탕",
+            "imageUrl": "http://tong.visitkorea.or.kr/cms/resource/48/3083448_image2_1.jpg",
+            "mapY": 129.1649018,
+            "mapX": 35.16309621
+          },
+          {
+            "id": 10,
+            "title": "벡스코 상상체험 키즈월드",
+            "imageUrl": "http://tong.visitkorea.or.kr/cms/resource/30/3083430_image2_1.jpg",
+            "mapY": 129.1349766,
+            "mapX": 35.16580369
+          },
+          {
+            "id": 12,
+            "title": "용두산 자갈치 관광특구",
+            "imageUrl": "http://tong.visitkorea.or.kr/cms/resource/46/3049246_image2_1.JPG",
+            "mapY": 129.0306014,
+            "mapX": 35.09666505
+          }
+        ]
+      },
+      {
+        "date": "2024-04-22",
+        "tours": [
+          {
+            "id": 1,
+            "title": "국제시장 먹자골목",
+            "imageUrl": "http://tong.visitkorea.or.kr/cms/resource/19/1020219_image2_1.jpg",
+            "mapY": 129.0280793,
+            "mapX": 35.10113117
+          },
+          {
+            "id": 3,
+            "title": "부산타워(용두산공원)",
+            "imageUrl": "http://tong.visitkorea.or.kr/cms/resource/50/566250_image2_1.jpg",
+            "mapY": 129.03264,
+            "mapX": 35.10127013
+          },
+          {
+            "id": 4,
+            "title": "BIFF 광장",
+            "imageUrl": "http://tong.visitkorea.or.kr/cms/resource/83/2364283_image2_1.jpg",
+            "mapY": 129.0292126,
+            "mapX": 35.09885089
+          }
+        ]
+      },
+      {
+        "date": "2024-04-23",
+        "tours": [
+          {
+            "id": 23,
+            "title": "곰내연밭",
+            "imageUrl": "http://tong.visitkorea.or.kr/cms/resource/58/2794158_image2_1.jpg",
+            "mapY": 129.169545,
+            "mapX": 35.29540925
+          },
+          {
+            "id": 25,
+            "title": "가덕도대항인공동굴",
+            "imageUrl": "http://tong.visitkorea.or.kr/cms/resource/67/2800367_image2_1.jpg",
+            "mapY": 128.8274686,
+            "mapX": 35.01330955
+          },
+          {
+            "id": 26,
+            "title": "장산 (부산 국가지질공원)",
+            "imageUrl": "http://tong.visitkorea.or.kr/cms/resource/66/2661666_image2_1.jpg",
+            "mapY": 129.1681899,
+            "mapX": 35.18110537
+          }
+        ]
+      }
+    ]
+  }
+}

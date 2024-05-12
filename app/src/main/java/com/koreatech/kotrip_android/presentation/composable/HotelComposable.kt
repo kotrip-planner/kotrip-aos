@@ -30,17 +30,21 @@ fun NavGraphBuilder.hotelComposable(navController: NavController) {
 
         LaunchedEffect(key1 = Unit) {
             it.arguments?.let { arg ->
-                val x = arg.getFloat(Screen.x)
-                val y = arg.getFloat(Screen.y)
-                hotelViewModel.getHotel(x.toDouble(), y.toDouble())
+                val x = arg.getString(Screen.x)
+                val y = arg.getString(Screen.y)
+                val bx = arg.getString(Screen.bx)
+                val by = arg.getString(Screen.by)
+                hotelViewModel.getHotel(
+                    x?.toDouble() ?: 0.0,
+                    y?.toDouble() ?: 0.0,
+                    bx?.toDouble() ?: 0.0,
+                    by?.toDouble() ?: 0.0
+                )
             }
         }
 
         val position = it.arguments?.getInt(Screen.position) ?: 0
 
-
-        Timber.e("aaa position : $position")
-        Timber.e("aaa tours : ${viewModel.optimalTours[position].tours}")
         HotelPage(
             context = context,
             hotels = hotels.value,

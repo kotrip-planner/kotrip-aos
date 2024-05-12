@@ -1,6 +1,7 @@
 package com.koreatech.kotrip_android.presentation.views.home
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -46,6 +47,7 @@ import com.koreatech.kotrip_android.presentation.components.organisms.KotripSche
 import com.koreatech.kotrip_android.presentation.components.organisms.KotripTripItem
 import com.koreatech.kotrip_android.presentation.components.parts.KotripScheduleEmpty
 import com.koreatech.kotrip_android.presentation.components.parts.KotripTopBar
+import com.koreatech.kotrip_android.presentation.utils.BackHandler
 import com.koreatech.kotrip_android.presentation.utils.showToast
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraPosition
@@ -63,19 +65,24 @@ import java.time.LocalDate
 fun HomePage(
     context: Context,
     focusManager: FocusManager,
+    optimalTitleVisible: Boolean,
+    onDismissTitleVisible: () -> Unit,
     cityInfo: CityInfo,
     startDate: String,
     endDate: String?,
     isOneDay: Boolean,
     dateList: List<LocalDate>,
     tourList: List<List<TourInfo>>,
+    selectedTours: List<TourInfo>,
     oneDayTourList: List<TourInfo>,
     oneDayTourInfo: TourInfo?,
     state: HomeState,
     modifier: Modifier = Modifier,
     onClick: (index: Int) -> Unit,
     onOneDayTourClick: () -> Unit,
-    onCreateTour: () -> Unit,
+    onCreateTour: (title: String) -> Unit,
+    onBackPressed: () -> Unit,
+    onTopBarButtonClick: () -> Unit
 ) {
     val city = LatLng(cityInfo.mapY - 0.3, cityInfo.mapX)
     val cameraPositionState: CameraPositionState = rememberCameraPositionState {
@@ -92,22 +99,26 @@ fun HomePage(
             skipPartiallyExpanded = false,
         )
     )
-
+    val coroutineScope = rememberCoroutineScope()
     val composition by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.lottie_search))
     val lottieAnimatable = rememberLottieAnimatable()
 
-    var optimalTitleVisible by remember {
-        mutableStateOf(false)
+    BackHandler(enabled = true) {
+        coroutineScope.launch {
+            onBackPressed()
+        }
     }
 
     KotripOptimalDialog(
         context = context,
         visible = optimalTitleVisible,
-        onDismissRequest = {
-            optimalTitleVisible = false
-        },
+        onDismissRequest = onDismissTitleVisible,
         onCreate = { title ->
-            showToast(context, title)
+            if (title.isEmpty()) showToast(context, "제목을 입력하세요.")
+            else {
+                onCreateTour(title)
+                onDismissTitleVisible()
+            }
         }
     )
 
@@ -133,22 +144,22 @@ fun HomePage(
             UiState.Success -> Unit
             UiState.Failed -> Unit
             UiState.Idle -> Unit
+            else -> {}
         }
 
         if (isOneDay) {
             KotripTopBar(
                 cityTitle = "${cityInfo.title} 여행",
                 scheduleContent = startDate,
-                onClick = onCreateTour
+//                onClick = onCreateTour,
+                onClick = onTopBarButtonClick,
             )
         } else {
             KotripTopBar(
                 cityTitle = "${cityInfo.title} 여행",
                 scheduleContent = "$startDate ~ $endDate",
 //                onClick = onCreateTour
-                onClick = {
-                    optimalTitleVisible = true
-                }
+                onClick = onTopBarButtonClick
             )
         }
 
@@ -180,10 +191,25 @@ fun HomePage(
                                             KotripTripItem(
                                                 context = context,
                                                 tourInfo = tourInfo,
-                                                position = -1
+                                                position = -1,
+                                                onClick = {
+                                                    val tourPosition =
+                                                        LatLng(it.latitude - 0.005, it.longitude)
+                                                    cameraPositionState.position =
+                                                        CameraPosition(tourPosition, 14.0, 0.0, 0.0)
+                                                }
                                             )
                                         } else {
-                                            KotripTripItem(context = context, tourInfo = tourInfo)
+                                            KotripTripItem(
+                                                context = context,
+                                                tourInfo = tourInfo,
+                                                onClick = {
+                                                    val tourPosition =
+                                                        LatLng(it.latitude - 0.005, it.longitude)
+                                                    cameraPositionState.position =
+                                                        CameraPosition(tourPosition, 14.0, 0.0, 0.0)
+
+                                                })
                                         }
                                     }
                                 }
@@ -193,6 +219,7 @@ fun HomePage(
                              * 2~5일 일정생성
                              */
                             itemsIndexed(tourList) { index, item ->
+                                Log.e("aaa", "item : $item")
                                 KotripScheduleItem(
                                     schedule = dateList[index],
                                     day = index,
@@ -209,20 +236,30 @@ fun HomePage(
                                             KotripTripItem(
                                                 context = context,
                                                 tourInfo = tourInfo,
-                                                position = -1
+                                                position = -1,
+                                                onClick = {
+                                                    val tourPosition =
+                                                        LatLng(it.latitude - 0.005, it.longitude)
+                                                    cameraPositionState.position =
+                                                        CameraPosition(tourPosition, 14.0, 0.0, 0.0)
+                                                }
                                             )
                                             if (index == tourList.size - 1) {
-                                                Spacer(modifier = Modifier.height(40.dp))
+                                                Spacer(modifier = Modifier.height(10.dp))
                                             }
                                         } else {
-                                            KotripTripItem(context = context, tourInfo = tourInfo)
+                                            KotripTripItem(
+                                                context = context,
+                                                tourInfo = tourInfo,
+                                                onClick = {
+                                                    val tourPosition =
+                                                        LatLng(it.latitude - 0.005, it.longitude)
+                                                    cameraPositionState.position =
+                                                        CameraPosition(tourPosition, 14.0, 0.0, 0.0)
+                                                })
                                         }
                                     }
                                 }
-                                Spacer(modifier = Modifier.height(40.dp))
-                            }
-                            item {
-                                Spacer(modifier = Modifier.height(60.dp))
                             }
                         }
                     },
@@ -268,28 +305,41 @@ fun HomePage(
                         }
                     }
                 } else {
-                    tourList.forEachIndexed { index, markerTours ->
-                        if (markerTours.isNotEmpty()) {
-                            if (index == scrollState.firstVisibleItemIndex) {
-                                val tourPosition =
-                                    LatLng(markerTours[0].latitude - 0.1, markerTours[0].longitude)
-                                cameraPositionState.position = CameraPosition(tourPosition, 9.0)
-                                markerTours.forEach {
-                                    val position = LatLng(it.latitude, it.longitude)
-                                    Marker(
-                                        state = MarkerState(position),
-                                        captionText = it.title,
-                                        onClick = {
-                                            cameraPositionState.position =
-                                                CameraPosition(position, 10.0)
-                                            true
-                                        }
-                                    )
-                                }
-                            }
-
-                        }
+                    selectedTours.forEach {
+                        val tourPosition =
+                            LatLng(it.latitude, it.longitude)
+                        Marker(
+                            state = MarkerState(tourPosition),
+                            captionText = it.title,
+//                            onClick = {
+//                                cameraPositionState.position =
+//                                    CameraPosition(tourPosition, 10.0)
+//                                true
+//                            }
+                        )
                     }
+//                    tourList.forEachIndexed { index, markerTours ->
+//                        if (markerTours.isNotEmpty()) {
+//                            if (index == scrollState.firstVisibleItemIndex) {
+//                                val tourPosition =
+//                                    LatLng(markerTours[0].latitude - 0.1, markerTours[0].longitude)
+//                                cameraPositionState.position = CameraPosition(tourPosition, 9.0)
+//                                markerTours.forEach {
+//                                    val position = LatLng(it.latitude, it.longitude)
+//                                    Marker(
+//                                        state = MarkerState(position),
+//                                        captionText = it.title,
+//                                        onClick = {
+//                                            cameraPositionState.position =
+//                                                CameraPosition(position, 10.0)
+//                                            true
+//                                        }
+//                                    )
+//                                }
+//                            }
+//
+//                        }
+//                    }
                 }
             }
         }

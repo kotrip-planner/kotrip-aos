@@ -17,6 +17,7 @@ import com.koreatech.kotrip_android.presentation.common.UiState
 import com.koreatech.kotrip_android.presentation.components.organisms.CityTwoCard
 import com.koreatech.kotrip_android.presentation.components.organisms.OnboardCard
 import com.koreatech.kotrip_android.presentation.components.parts.Loading
+import com.koreatech.kotrip_android.presentation.utils.cities
 
 @Composable
 fun CityPage(
@@ -38,13 +39,16 @@ fun CityPage(
                 )
             }
 
-            setUpTwoGrip(state.cities) { one, two ->
+            setUpTwoGrip(state.cities) { one, two, oneIndex, twoIndex ->
                 CityTwoCard(
                     one = one,
+                    oneIndex = oneIndex,
+                    cities = cities,
                     onClickedOne = { cityInfo ->
                         one?.let { onClick(cityInfo) }
                     },
                     two = two,
+                    twoIndex = twoIndex,
                     onClickedTwo = { cityInfo ->
                         two?.let { onClick(cityInfo) }
                     },
@@ -57,8 +61,8 @@ fun CityPage(
         }
 
         when (state.status) {
-//            is UiState.Loading -> Loading()
-            is UiState.Loading -> Unit
+            is UiState.Loading -> Loading()
+//            is UiState.Loading -> Unit
             is UiState.Success -> Unit
             is UiState.Failed -> Unit
             else -> {}
@@ -69,16 +73,17 @@ fun CityPage(
 
 fun <T> LazyListScope.setUpTwoGrip(
     entities: List<T>,
-    row: @Composable (one: T?, two: T?) -> Unit,
+    row: @Composable (one: T?, two: T?, oneIndex: Int, twoIndex: Int) -> Unit,
 ) {
     val rowData = if (entities.count() <= 2) {
         listOf(entities)
     } else {
         entities.windowed(size = 2, step = 2, true)
     }
+    var i = 0
 
     rowData.forEach { column ->
-        item { row(column.getOrNull(0), column.getOrNull(1)) }
+        item { row(column.getOrNull(0), column.getOrNull(1), i++, i++) }
     }
 }
 

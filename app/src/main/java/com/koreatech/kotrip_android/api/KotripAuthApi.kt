@@ -48,8 +48,10 @@ interface KotripAuthApi {
     @GET("api/hotelSearch")
     suspend fun getHotel(
         @Header(AUTHORIZATION_PREFIX) token: String,
-        @Query("mapX") longitude: Double, // 위도
-        @Query("mapY") latitude: Double, // 경도
+        @Query("mapAX") axLongitude: Double, // 위도
+        @Query("mapAY") ayLatitude: Double, // 경도
+        @Query("mapBX") bxLongitude: Double,
+        @Query("mapBY") byLatitude: Double,
     ): BaseResponse<List<HotelResponseDto>>
 }
 

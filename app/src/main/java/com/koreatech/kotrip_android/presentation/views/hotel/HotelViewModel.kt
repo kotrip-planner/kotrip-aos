@@ -24,13 +24,17 @@ class HotelViewModel(
     private val _hotels = MutableStateFlow<MutableList<HotelResponseDto>>(mutableListOf())
     val hotels = _hotels.asStateFlow()
 
-    suspend fun getHotel(x: Double, y: Double) {
+    suspend fun getHotel(x: Double, y: Double, bx: Double, by: Double) {
         viewModelScope.launch {
             runCatching {
                 kotripAuthApi.getHotel(
-                    "${Constants.BEARER_PREFIX} ${
+                    token = "${Constants.BEARER_PREFIX} ${
                         dataStoreImpl.getAccessToken().first().toString()
-                    }", x, y
+                    }",
+                    axLongitude = x,
+                    ayLatitude = y,
+                    bxLongitude = bx,
+                    byLatitude = by
                 )
             }.onSuccess {
                 val updatedHotels = it.data

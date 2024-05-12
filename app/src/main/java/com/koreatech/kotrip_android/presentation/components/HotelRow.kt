@@ -84,7 +84,6 @@ fun HotelRow(
                 .build(),
             contentDescription = null,
             contentScale = ContentScale.Crop,
-            placeholder = painterResource(id = R.drawable.ic_question_black),
             modifier = Modifier
                 .width(50.dp)
                 .height(50.dp),

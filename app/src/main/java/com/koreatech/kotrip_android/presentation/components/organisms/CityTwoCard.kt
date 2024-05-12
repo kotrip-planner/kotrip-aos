@@ -1,5 +1,6 @@
 package com.koreatech.kotrip_android.presentation.components.organisms
 
+import android.graphics.drawable.Drawable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,8 +15,11 @@ import com.koreatech.kotrip_android.model.trip.CityInfo
 @Composable
 fun CityTwoCard(
     one: CityInfo? = null,
+    cities: List<Int>,
+    oneIndex: Int,
     onClickedOne: ((cityInfo: CityInfo) -> Unit)? = null,
     two: CityInfo? = null,
+    twoIndex: Int,
     onClickedTwo: ((cityInfo: CityInfo) -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
@@ -26,6 +30,8 @@ fun CityTwoCard(
         if (one != null) {
             CityCard(
                 cityInfo = one,
+                index = oneIndex,
+                cities = cities,
                 onClick = { onClickedOne?.invoke(it) },
                 modifier = Modifier
                     .fillMaxHeight()
@@ -37,6 +43,8 @@ fun CityTwoCard(
         if (two != null) {
             CityCard(
                 cityInfo = two,
+                index = twoIndex,
+                cities = cities,
                 onClick = { onClickedTwo?.invoke(it) },
                 modifier = Modifier
                     .fillMaxHeight()

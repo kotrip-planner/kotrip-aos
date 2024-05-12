@@ -42,14 +42,13 @@ import com.koreatech.kotrip_android.R
 import com.koreatech.kotrip_android.data.model.response.OptimalScheduleResponseDto
 import com.koreatech.kotrip_android.data.model.response.OptimalToursResponseDto
 import com.koreatech.kotrip_android.presentation.common.UiState
-import com.koreatech.kotrip_android.presentation.components.organisms.KotripOptimalDialog
 import com.koreatech.kotrip_android.presentation.components.organisms.KotripOptimalItem
 import com.koreatech.kotrip_android.presentation.components.organisms.KotripOptimalScheduleItem
 import com.koreatech.kotrip_android.presentation.components.organisms.TourDetailDialog
 import com.koreatech.kotrip_android.presentation.components.parts.KotripOptimalTopBar
 import com.koreatech.kotrip_android.presentation.theme.Orange_FFCD4C
 import com.koreatech.kotrip_android.presentation.theme.Pink
-import com.koreatech.kotrip_android.presentation.utils.showToast
+import com.koreatech.kotrip_android.presentation.utils.BackHandler
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraPosition
 import com.naver.maps.map.compose.CameraPositionState
@@ -71,7 +70,8 @@ fun OptimalPage(
     routes: List<OptimalScheduleResponseDto>,
     paths: List<List<LatLng>>,
     modifier: Modifier = Modifier,
-    onLoadHotel: (x: Float, y: Float, pos: Int) -> Unit,
+    onLoadHotel: (x: Double, y: Double, bx: Double, by: Double, pos: Int) -> Unit,
+    onBackPressed: () -> Unit,
 ) {
     val cameraPositionState: CameraPositionState = rememberCameraPositionState {}
     val context = LocalContext.current
@@ -84,6 +84,7 @@ fun OptimalPage(
             skipPartiallyExpanded = false,
         )
     )
+    val coroutineScope = rememberCoroutineScope()
     var pathPosition by remember {
         mutableStateOf(0)
     }
@@ -96,13 +97,23 @@ fun OptimalPage(
     }
 
     LaunchedEffect(key1 = Unit) {
-        val initPosition = routes.first().tours[routes.first().tours.size / 2].let {
-            LatLng(it.latitude - 0.1, it.longitude)
+        if (routes.isEmpty()) return@LaunchedEffect
+        val tours = routes.firstOrNull()?.tours
+        if (tours?.isNotEmpty() == true) {
+            val initPosition = tours.get(tours.size / 2).let {
+                LatLng(it.latitude - 0.1, it.longitude)
+            }
+            cameraPositionState.position =
+                CameraPosition(initPosition, 9.0)
         }
-        cameraPositionState.position =
-            CameraPosition(initPosition, 9.0)
     }
 
+
+    BackHandler(enabled = true) {
+        coroutineScope.launch {
+            onBackPressed()
+        }
+    }
 
     if (state == UiState.Loading) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -150,7 +161,13 @@ fun OptimalPage(
                                 KotripOptimalItem(
                                     position = if (index == 0) 1 else if (index == item.tours.size - 1) 2 else 0,
                                     context = context,
-                                    tourInfo = optimalToursResponseDto
+                                    tourInfo = optimalToursResponseDto,
+                                    onClick = {
+                                        val tourPosition =
+                                            LatLng(it.latitude - 0.005, it.longitude)
+                                        cameraPositionState.position =
+                                            CameraPosition(tourPosition, 14.0, 0.0, 0.0)
+                                    }
                                 )
                             }
 
@@ -160,8 +177,10 @@ fun OptimalPage(
                                     onClick = {
                                         item.tours
                                         onLoadHotel(
-                                            ((routes[index].tours.last().longitude + routes[index + 1].tours.first().longitude) / 2).toFloat(),
-                                            ((routes[index].tours.last().latitude + routes[index + 1].tours.first().latitude) / 2).toFloat(),
+                                            routes[index].tours.last().longitude,
+                                            routes[index].tours.last().latitude,
+                                            routes[index + 1].tours.first().longitude,
+                                            routes[index + 1].tours.first().latitude,
                                             index
                                         )
                                     },
@@ -289,6 +308,8 @@ fun OptimalPagePreview() {
         state = UiState.Loading,
         city = "",
         routes = listOf(),
-        paths = listOf()
-    ) { _, _, _ -> }
+        paths = listOf(),
+        onBackPressed = {},
+        onLoadHotel = { _, _, _, _, _ -> }
+    )
 }

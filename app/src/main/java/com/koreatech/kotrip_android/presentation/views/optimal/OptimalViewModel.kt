@@ -39,27 +39,34 @@ class OptimalViewModel(
             viewModelScope.launch {
                 initLocation.forEachIndexed { index, naverLocation ->
                     val newList = mutableListOf<LatLng>()
-                    runCatching {
-                        kotripNaverApi.getDriving5(
-                            clientId,
-                            clientSecret,
-                            naverLocation.start,
-                            naverLocation.goal,
-                            naverLocation.waypoints
-                        )
-                    }.onSuccess {
-                        it.route.traoptimal.forEach {
-                            newList.add(it.summary.start.location.toLatLng())
-                            it.path.map { it.toLatLng() }.forEach { item ->
-                                newList.add(item)
+                    if (naverLocation.start.isNotEmpty()){
+
+                        runCatching {
+                            kotripNaverApi.getDriving5(
+                                clientId,
+                                clientSecret,
+                                naverLocation.start,
+                                naverLocation.goal,
+                                naverLocation.waypoints
+                            )
+                        }.onSuccess {
+                            try {
+                                it.route.traoptimal.forEach {
+                                    newList.add(it.summary.start.location.toLatLng())
+                                    it.path.map { it.toLatLng() }.forEach { item ->
+                                        newList.add(item)
+                                    }
+                                    newList.add(it.summary.goal.location.toLatLng())
+                                }
+                            } catch (e:Exception) {
+                                e.message
                             }
-                            newList.add(it.summary.goal.location.toLatLng())
+                            reduce { state.copy(status = UiState.Success) }
+                        }.onFailure {
+                            postSideEffect(OptimalSideEffect.Toast(it.message ?: ""))
                         }
-                        reduce { state.copy(status = UiState.Success) }
-                    }.onFailure {
-                        postSideEffect(OptimalSideEffect.Toast(it.message ?: ""))
+                        naverPaths.add(newList)
                     }
-                    naverPaths.add(newList)
                 }
                 reduce {
                     state.copy(

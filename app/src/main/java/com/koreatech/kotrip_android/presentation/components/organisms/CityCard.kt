@@ -31,6 +31,8 @@ import com.koreatech.kotrip_android.model.trip.CityInfo
 @Composable
 fun CityCard(
     cityInfo: CityInfo,
+    index: Int,
+    cities: List<Int>,
     onClick: (cityInfo: CityInfo) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -59,7 +61,8 @@ fun CityCard(
 
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(cityInfo.imageUrl)
+                    .data(cities[index])
+                    .size(200, 100)
                     .crossfade(true)
                     .build(),
                 contentScale = ContentScale.Crop,

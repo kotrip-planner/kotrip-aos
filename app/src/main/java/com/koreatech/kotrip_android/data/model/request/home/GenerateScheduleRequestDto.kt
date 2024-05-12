@@ -3,6 +3,8 @@ package com.koreatech.kotrip_android.data.model.request.home
 import com.google.gson.annotations.SerializedName
 
 data class GenerateScheduleRequestDto(
+    @SerializedName("title")
+    val title: String,
     @SerializedName("areaId")
     val areaId: Int,
     @SerializedName("kotrip")
