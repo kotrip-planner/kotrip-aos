@@ -2,13 +2,13 @@ package com.koreatech.kotrip_android.presentation.views.hotel
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.Rect
 import android.graphics.RectF
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,7 +25,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,7 +57,6 @@ import com.naver.maps.map.compose.PathOverlay
 import com.naver.maps.map.compose.rememberCameraPositionState
 import com.naver.maps.map.overlay.OverlayImage
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -75,8 +75,12 @@ fun HotelPage(
     paths: List<List<LatLng>>,
     hotels: List<HotelResponseDto>,
     modifier: Modifier = Modifier,
+    onAddClick: (hotel: HotelResponseDto, position: Int) -> Unit,
 ) {
     val cameraPositionState: CameraPositionState = rememberCameraPositionState {}
+    var selectedId by remember {
+        mutableStateOf(-1)
+    }
 
     LaunchedEffect(key1 = Unit) {
         val initPosition = LatLng(
@@ -173,6 +177,7 @@ fun HotelPage(
                     color = MarkerBlueBold,
                     outlineWidth = 1.dp,
                     outlineColor = Color.Black,
+                    zIndex = 10
                 )
             }
             secondRoutes.forEachIndexed { index, tour ->
@@ -216,17 +221,30 @@ fun HotelPage(
             }
         }
         LazyColumn {
-            items(hotels) { hotel ->
+            itemsIndexed(hotels) { index, hotel ->
                 HotelRow(
                     context = context,
                     hotelResponseDto = hotel,
+                    selectedId = selectedId,
+                    onSelectedIdChanged = {
+                        selectedId = it
+                    },
                     onClick = {
                         val clickPosition = LatLng(
                             it.latitude, it.longitude
                         )
                         cameraPositionState.position =
                             CameraPosition(clickPosition, 16.0)
-                    }
+                    },
+                    onAddClick = { addHotel ->
+                        onAddClick(addHotel, position)
+
+                    },
+                    index = index,
+                    modifier = Modifier
+                        .background(
+                            if (selectedId == index) Orange4d else Color.White
+                        )
                 )
                 Divider(color = Color.LightGray)
             }

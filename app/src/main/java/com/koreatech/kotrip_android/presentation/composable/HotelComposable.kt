@@ -2,6 +2,9 @@ package com.koreatech.kotrip_android.presentation.composable
 
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -27,7 +30,9 @@ fun NavGraphBuilder.hotelComposable(navController: NavController) {
         val state by viewModel.collectAsState()
 
         val hotels = hotelViewModel.hotels.collectAsStateWithLifecycle()
+        val selectedHotels = viewModel.hotels.collectAsStateWithLifecycle()
 
+        Timber.e("aaa selectedHotels : ${selectedHotels.value}")
         LaunchedEffect(key1 = Unit) {
             it.arguments?.let { arg ->
                 val x = arg.getString(Screen.x)
@@ -45,13 +50,18 @@ fun NavGraphBuilder.hotelComposable(navController: NavController) {
 
         val position = it.arguments?.getInt(Screen.position) ?: 0
 
+
         HotelPage(
             context = context,
             hotels = hotels.value,
             position = position,
             firstRoutes = viewModel.optimalTours[position].tours,
             secondRoutes = viewModel.optimalTours[position + 1].tours,
-            paths = viewModel.naverPaths
+            paths = viewModel.naverPaths,
+            onAddClick = { addHotel, addPosition ->
+                viewModel.setHotels(addHotel, addPosition)
+                navController.popBackStack()
+            }
         )
     }
 }

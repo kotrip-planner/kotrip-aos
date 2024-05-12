@@ -50,7 +50,7 @@ fun HotelDetailDialog(
                         .build(),
                     contentDescription = null,
                     placeholder = painterResource(id = R.drawable.ic_question_black),
-                    contentScale = ContentScale.Crop,
+                    contentScale = ContentScale.Fit,
                     modifier = Modifier
                         .padding(bottom = 20.dp)
                         .fillMaxWidth()
