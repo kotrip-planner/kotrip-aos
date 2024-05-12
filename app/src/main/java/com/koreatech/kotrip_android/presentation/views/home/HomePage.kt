@@ -82,7 +82,7 @@ fun HomePage(
     onOneDayTourClick: () -> Unit,
     onCreateTour: (title: String) -> Unit,
     onBackPressed: () -> Unit,
-    onTopBarButtonClick: () -> Unit
+    onTopBarButtonClick: () -> Unit,
 ) {
     val city = LatLng(cityInfo.mapY - 0.3, cityInfo.mapX)
     val cameraPositionState: CameraPositionState = rememberCameraPositionState {
@@ -103,6 +103,9 @@ fun HomePage(
     val composition by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.lottie_search))
     val lottieAnimatable = rememberLottieAnimatable()
 
+    var bottomSheetVisible by remember {
+        mutableStateOf(true)
+    }
     BackHandler(enabled = true) {
         coroutineScope.launch {
             onBackPressed()
@@ -125,6 +128,7 @@ fun HomePage(
     Column {
         when (state.status) {
             UiState.Loading -> {
+                bottomSheetVisible = false
                 LaunchedEffect(key1 = composition) {
                     lottieAnimatable.animate(
                         composition = composition,
@@ -163,136 +167,157 @@ fun HomePage(
             )
         }
 
-        BottomSheetScaffold(
-            sheetContainerColor = Color.White,
-            scaffoldState = scaffoldState,
-            sheetContent = {
-                LazyColumn(
-                    state = scrollState,
-                    content = {
-                        if (dateList.isEmpty()) {
-                            /**
-                             * 당일치기
-                             */
-                            item {
-                                KotripInputStartArea(
-                                    text = oneDayTourInfo?.title ?: "출발지를 선정해주세요.",
-                                    onClick = {
-                                        onOneDayTourClick()
-                                    }
-                                )
-                                Spacer(modifier = Modifier.height(20.dp))
-                                KotripScheduleItem(onClick = { onClick(-1) })
-                                if (oneDayTourList.isEmpty()) {
-                                    KotripScheduleEmpty()
-                                } else {
-                                    oneDayTourList.forEachIndexed { index, tourInfo ->
-                                        if (index == oneDayTourList.size - 1) {
-                                            KotripTripItem(
-                                                context = context,
-                                                tourInfo = tourInfo,
-                                                position = -1,
-                                                onClick = {
-                                                    val tourPosition =
-                                                        LatLng(it.latitude - 0.005, it.longitude)
-                                                    cameraPositionState.position =
-                                                        CameraPosition(tourPosition, 14.0, 0.0, 0.0)
-                                                }
-                                            )
-                                        } else {
-                                            KotripTripItem(
-                                                context = context,
-                                                tourInfo = tourInfo,
-                                                onClick = {
-                                                    val tourPosition =
-                                                        LatLng(it.latitude - 0.005, it.longitude)
-                                                    cameraPositionState.position =
-                                                        CameraPosition(tourPosition, 14.0, 0.0, 0.0)
+        if (bottomSheetVisible) {
+            BottomSheetScaffold(
+                sheetContainerColor = Color.White,
+                scaffoldState = scaffoldState,
+                sheetContent = {
+                    LazyColumn(
+                        state = scrollState,
+                        content = {
+                            if (dateList.isEmpty()) {
+                                /**
+                                 * 당일치기
+                                 */
+                                item {
+                                    KotripInputStartArea(
+                                        text = oneDayTourInfo?.title ?: "출발지를 선정해주세요.",
+                                        onClick = {
+                                            onOneDayTourClick()
+                                        }
+                                    )
+                                    Spacer(modifier = Modifier.height(20.dp))
+                                    KotripScheduleItem(onClick = { onClick(-1) })
+                                    if (oneDayTourList.isEmpty()) {
+                                        KotripScheduleEmpty()
+                                    } else {
+                                        oneDayTourList.forEachIndexed { index, tourInfo ->
+                                            if (index == oneDayTourList.size - 1) {
+                                                KotripTripItem(
+                                                    context = context,
+                                                    tourInfo = tourInfo,
+                                                    position = -1,
+                                                    onClick = {
+                                                        val tourPosition =
+                                                            LatLng(
+                                                                it.latitude - 0.005,
+                                                                it.longitude
+                                                            )
+                                                        cameraPositionState.position =
+                                                            CameraPosition(
+                                                                tourPosition,
+                                                                14.0,
+                                                                0.0,
+                                                                0.0
+                                                            )
+                                                    }
+                                                )
+                                            } else {
+                                                KotripTripItem(
+                                                    context = context,
+                                                    tourInfo = tourInfo,
+                                                    onClick = {
+                                                        val tourPosition =
+                                                            LatLng(
+                                                                it.latitude - 0.005,
+                                                                it.longitude
+                                                            )
+                                                        cameraPositionState.position =
+                                                            CameraPosition(
+                                                                tourPosition,
+                                                                14.0,
+                                                                0.0,
+                                                                0.0
+                                                            )
 
-                                                })
-                                        }
-                                    }
-                                }
-                            }
-                        } else {
-                            /**
-                             * 2~5일 일정생성
-                             */
-                            itemsIndexed(tourList) { index, item ->
-                                Log.e("aaa", "item : $item")
-                                KotripScheduleItem(
-                                    schedule = dateList[index],
-                                    day = index,
-                                    onClick = { onClick(index) }
-                                )
-                                if (item.isEmpty()) {
-                                    KotripScheduleEmpty()
-                                    if (index == tourList.size - 1) {
-                                        Spacer(modifier = Modifier.height(120.dp))
-                                    }
-                                } else {
-                                    item.forEachIndexed { itemIndex, tourInfo ->
-                                        if (itemIndex == item.size - 1) {
-                                            KotripTripItem(
-                                                context = context,
-                                                tourInfo = tourInfo,
-                                                position = -1,
-                                                onClick = {
-                                                    val tourPosition =
-                                                        LatLng(it.latitude - 0.005, it.longitude)
-                                                    cameraPositionState.position =
-                                                        CameraPosition(tourPosition, 14.0, 0.0, 0.0)
-                                                }
-                                            )
-                                            if (index == tourList.size - 1) {
-                                                Spacer(modifier = Modifier.height(10.dp))
+                                                    })
                                             }
-                                        } else {
-                                            KotripTripItem(
-                                                context = context,
-                                                tourInfo = tourInfo,
-                                                onClick = {
-                                                    val tourPosition =
-                                                        LatLng(it.latitude - 0.005, it.longitude)
-                                                    cameraPositionState.position =
-                                                        CameraPosition(tourPosition, 14.0, 0.0, 0.0)
-                                                })
+                                        }
+                                    }
+                                }
+                            } else {
+                                /**
+                                 * 2~5일 일정생성
+                                 */
+                                itemsIndexed(tourList) { index, item ->
+                                    Log.e("aaa", "item : $item")
+                                    KotripScheduleItem(
+                                        schedule = dateList[index],
+                                        day = index,
+                                        onClick = { onClick(index) }
+                                    )
+                                    if (item.isEmpty()) {
+                                        KotripScheduleEmpty()
+                                        if (index == tourList.size - 1) {
+                                            Spacer(modifier = Modifier.height(120.dp))
+                                        }
+                                    } else {
+                                        item.forEachIndexed { itemIndex, tourInfo ->
+                                            if (itemIndex == item.size - 1) {
+                                                KotripTripItem(
+                                                    context = context,
+                                                    tourInfo = tourInfo,
+                                                    position = -1,
+                                                    onClick = {
+                                                        val tourPosition =
+                                                            LatLng(
+                                                                it.latitude - 0.005,
+                                                                it.longitude
+                                                            )
+                                                        cameraPositionState.position =
+                                                            CameraPosition(
+                                                                tourPosition,
+                                                                14.0,
+                                                                0.0,
+                                                                0.0
+                                                            )
+                                                    }
+                                                )
+                                                if (index == tourList.size - 1) {
+                                                    Spacer(modifier = Modifier.height(10.dp))
+                                                }
+                                            } else {
+                                                KotripTripItem(
+                                                    context = context,
+                                                    tourInfo = tourInfo,
+                                                    onClick = {
+                                                        val tourPosition =
+                                                            LatLng(
+                                                                it.latitude - 0.005,
+                                                                it.longitude
+                                                            )
+                                                        cameraPositionState.position =
+                                                            CameraPosition(
+                                                                tourPosition,
+                                                                14.0,
+                                                                0.0,
+                                                                0.0
+                                                            )
+                                                    })
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
-                    },
-                    modifier = Modifier
-                        .heightIn(0.dp, 300.dp)
-                        .padding(horizontal = 16.dp)
-                )
-            },
-            containerColor = Color.White,
-            contentColor = Color.White
-        ) {
-            NaverMap(
-                cameraPositionState = cameraPositionState,
-                onMapClick = { _, _ ->
-                    scope.launch {
-                        scaffoldState.bottomSheetState.partialExpand()
-                    }
-                }
+                        },
+                        modifier = Modifier
+                            .heightIn(0.dp, 300.dp)
+                            .padding(horizontal = 16.dp)
+                    )
+                },
+                containerColor = Color.White,
+                contentColor = Color.White
             ) {
-                if (isOneDay) {
-                    oneDayTourInfo?.let {
-                        val position = LatLng(it.latitude - 0.1, it.longitude)
-                        Marker(
-                            state = MarkerState(position),
-                            captionText = it.title,
-                            onClick = {
-                                cameraPositionState.position = CameraPosition(position, 9.0)
-                                true
-                            }
-                        )
+                NaverMap(
+                    cameraPositionState = cameraPositionState,
+                    onMapClick = { _, _ ->
+                        scope.launch {
+                            scaffoldState.bottomSheetState.partialExpand()
+                        }
                     }
-                    if (oneDayTourList.isNotEmpty()) {
-                        oneDayTourList.forEach {
+                ) {
+                    if (isOneDay) {
+                        oneDayTourInfo?.let {
                             val position = LatLng(it.latitude - 0.1, it.longitude)
                             Marker(
                                 state = MarkerState(position),
@@ -303,43 +328,34 @@ fun HomePage(
                                 }
                             )
                         }
-                    }
-                } else {
-                    selectedTours.forEach {
-                        val tourPosition =
-                            LatLng(it.latitude, it.longitude)
-                        Marker(
-                            state = MarkerState(tourPosition),
-                            captionText = it.title,
+                        if (oneDayTourList.isNotEmpty()) {
+                            oneDayTourList.forEach {
+                                val position = LatLng(it.latitude - 0.1, it.longitude)
+                                Marker(
+                                    state = MarkerState(position),
+                                    captionText = it.title,
+                                    onClick = {
+                                        cameraPositionState.position = CameraPosition(position, 9.0)
+                                        true
+                                    }
+                                )
+                            }
+                        }
+                    } else {
+                        selectedTours.forEach {
+                            val tourPosition =
+                                LatLng(it.latitude, it.longitude)
+                            Marker(
+                                state = MarkerState(tourPosition),
+                                captionText = it.title,
 //                            onClick = {
 //                                cameraPositionState.position =
 //                                    CameraPosition(tourPosition, 10.0)
 //                                true
 //                            }
-                        )
+                            )
+                        }
                     }
-//                    tourList.forEachIndexed { index, markerTours ->
-//                        if (markerTours.isNotEmpty()) {
-//                            if (index == scrollState.firstVisibleItemIndex) {
-//                                val tourPosition =
-//                                    LatLng(markerTours[0].latitude - 0.1, markerTours[0].longitude)
-//                                cameraPositionState.position = CameraPosition(tourPosition, 9.0)
-//                                markerTours.forEach {
-//                                    val position = LatLng(it.latitude, it.longitude)
-//                                    Marker(
-//                                        state = MarkerState(position),
-//                                        captionText = it.title,
-//                                        onClick = {
-//                                            cameraPositionState.position =
-//                                                CameraPosition(position, 10.0)
-//                                            true
-//                                        }
-//                                    )
-//                                }
-//                            }
-//
-//                        }
-//                    }
                 }
             }
         }
