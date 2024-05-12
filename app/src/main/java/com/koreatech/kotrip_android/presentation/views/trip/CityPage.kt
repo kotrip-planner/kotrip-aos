@@ -80,10 +80,16 @@ fun <T> LazyListScope.setUpTwoGrip(
     } else {
         entities.windowed(size = 2, step = 2, true)
     }
-    var i = 0
 
-    rowData.forEach { column ->
-        item { row(column.getOrNull(0), column.getOrNull(1), i++, i++) }
+    rowData.forEachIndexed { index, column ->
+        item {
+            row(
+                column.getOrNull(0),
+                column.getOrNull(1),
+                index * 2,
+                index * 2 + 1
+            )
+        }
     }
 }
 
