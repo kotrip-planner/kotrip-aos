@@ -1,11 +1,12 @@
 package com.koreatech.kotrip_android.presentation.views.history
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -15,15 +16,14 @@ import com.koreatech.kotrip_android.R
 import com.koreatech.kotrip_android.data.model.response.HistoryDataResponseDto
 import com.koreatech.kotrip_android.presentation.common.UiState
 import com.koreatech.kotrip_android.presentation.components.organisms.OnboardCard
-import com.koreatech.kotrip_android.presentation.components.organisms.TourHistoryTwoCard
-import com.koreatech.kotrip_android.presentation.views.trip.setUpTwoGrip
+import com.koreatech.kotrip_android.presentation.components.organisms.TourHistoryRow
 
 @Composable
 fun HistoryPage(
     uiSate: UiState,
     tourHistories: List<HistoryDataResponseDto>,
     modifier: Modifier = Modifier,
-    onClick: (String) -> Unit,
+    onClick: (uuid: String) -> Unit,
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         LazyColumn(
@@ -39,20 +39,9 @@ fun HistoryPage(
                 )
             }
 
-
-            if (tourHistories.isNotEmpty()) {
-                setUpTwoGrip(tourHistories) { one, two, _, _ ->
-                    TourHistoryTwoCard(
-                        one = one,
-                        onClickedOne = { one?.let { onClick(one.uuid) } },
-                        two = two,
-                        onClickedTwo = { two?.let { onClick(two.uuid) } },
-                        modifier = Modifier
-                            .height(200.dp)
-                            .fillMaxWidth()
-                            .padding(bottom = 20.dp)
-                    )
-                }
+            items(tourHistories) {
+                TourHistoryRow(title = "제목", history = it, onClick = onClick)
+                Spacer(modifier = Modifier.height(10.dp))
             }
         }
     }

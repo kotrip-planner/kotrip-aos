@@ -224,7 +224,7 @@ fun OptimalPage(
                                     Card(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .background(Orange4d),
+                                            .background(Color.White),
                                         elevation = CardDefaults.elevatedCardElevation(2.dp),
                                         onClick = {
                                             val tourPosition =
@@ -239,7 +239,7 @@ fun OptimalPage(
                                         Column(
                                             modifier = Modifier
                                                 .fillMaxWidth()
-                                                .background(Orange4d)
+                                                .background(Color.White)
                                                 .padding(
                                                     vertical = 10.dp,
                                                     horizontal = 10.dp
