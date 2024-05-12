@@ -1,6 +1,13 @@
 package com.koreatech.kotrip_android.presentation.views.hotel
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Path
+import android.graphics.Rect
+import android.graphics.RectF
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -16,6 +23,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,6 +32,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import com.bumptech.glide.Glide
 import com.koreatech.kotrip_android.R
 import com.koreatech.kotrip_android.data.model.response.HotelResponseDto
 import com.koreatech.kotrip_android.data.model.response.OptimalToursResponseDto
@@ -33,7 +42,6 @@ import com.koreatech.kotrip_android.presentation.theme.MarkerBlue
 import com.koreatech.kotrip_android.presentation.theme.MarkerBlueBold
 import com.koreatech.kotrip_android.presentation.theme.Orange4d
 import com.koreatech.kotrip_android.presentation.theme.Orange_FFCD4C
-import com.koreatech.kotrip_android.presentation.theme.Pink
 import com.koreatech.kotrip_android.presentation.views.optimal.createBitmap
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraPosition
@@ -47,6 +55,11 @@ import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.PathOverlay
 import com.naver.maps.map.compose.rememberCameraPositionState
 import com.naver.maps.map.overlay.OverlayImage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.lang.Math.atan2
 import java.lang.Math.cos
 import java.lang.Math.sin
@@ -81,6 +94,15 @@ fun HotelPage(
     var hotelDetailVisible by remember {
         mutableStateOf(false)
     }
+
+    val hotelImageBitmaps = mutableListOf<Bitmap>()
+
+    runBlocking {
+        hotels.forEach {
+            hotelImageBitmaps.add(createCircleBitmapFromUrl(it.imageUrl1, context)!!)
+        }
+    }
+
 
     HotelDetailDialog(
         context = context,
@@ -119,7 +141,12 @@ fun HotelPage(
                 val markerPosition = LatLng(hotel.latitude, hotel.longitude)
                 Marker(
                     state = MarkerState(markerPosition),
-                    icon = OverlayImage.fromResource(R.drawable.ic_hotel),
+                    icon = if (hotelImageBitmaps[index] != null) {
+                        OverlayImage.fromBitmap(hotelImageBitmaps[index])
+                    } else {
+                        OverlayImage.fromResource(R.drawable.ic_hotel)
+                    },
+//                    icon = OverlayImage.fromResource(R.drawable.ic_hotel),
                     onClick = {
                         hotelDetailInfo = hotel
                         hotelDetailVisible = true
@@ -132,7 +159,13 @@ fun HotelPage(
                 Marker(
                     state = MarkerState(tourPosition),
                     captionText = tour.title,
-                    icon = OverlayImage.fromBitmap(createBitmap("${position + 1}-${index + 1}", context, ContextCompat.getColor(context, R.color.marker_blue_bold))),
+                    icon = OverlayImage.fromBitmap(
+                        createBitmap(
+                            "${position + 1}-${index + 1}",
+                            context,
+                            ContextCompat.getColor(context, R.color.marker_blue_bold)
+                        )
+                    ),
                 )
                 PathOverlay(
                     coords = paths[position],
@@ -147,7 +180,13 @@ fun HotelPage(
                 Marker(
                     state = MarkerState(tourPosition),
                     captionText = tour.title,
-                    icon = OverlayImage.fromBitmap(createBitmap("${position + 2}-${index + 1}", context, ContextCompat.getColor(context, R.color.marker_blue))),
+                    icon = OverlayImage.fromBitmap(
+                        createBitmap(
+                            "${position + 2}-${index + 1}",
+                            context,
+                            ContextCompat.getColor(context, R.color.marker_blue)
+                        )
+                    ),
                 )
                 PathOverlay(
                     coords = paths[position + 1],
@@ -208,3 +247,42 @@ fun haversine(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
 
     return distance / 2
 }
+
+suspend fun createCircleBitmapFromUrl(url: String, context: Context): Bitmap? = withContext(
+    Dispatchers.IO
+) {
+    // Glide를 이용해 이미지를 비트맵으로 다운로드
+    try {
+        val originalBitmap = Glide.with(context)
+            .asBitmap()
+            .load(url)
+            .submit()
+            .get()
+
+        val outputBitmap = Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(outputBitmap)
+        val paint = Paint()
+
+        val rect = Rect(0, 0, 50, 50)
+        val rectF = RectF(rect)
+
+        // 이미지를 원형으로 가공하기 위해 Path를 사용
+        val path = Path().apply {
+            addCircle(25f, 25f, 24f, Path.Direction.CCW)
+        }
+
+        // 원형 클리핑 적용
+        canvas.clipPath(path)
+
+        // 원형 모양에 맞게 이미지를 캔버스에 그림
+        paint.isAntiAlias = true
+        canvas.drawBitmap(originalBitmap, null, rectF, paint)
+
+        // 가공된 비트맵 반환
+        outputBitmap
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+

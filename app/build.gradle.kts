@@ -146,6 +146,9 @@ dependencies {
 
     // preferences datastore
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+
+    // glide
+    implementation ("com.github.bumptech.glide:glide:4.16.0")
 }
 
 fun getPropertyKey(propertyKey: String): String {
