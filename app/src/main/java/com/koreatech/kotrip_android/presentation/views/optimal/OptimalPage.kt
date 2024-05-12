@@ -1,5 +1,10 @@
 package com.koreatech.kotrip_android.presentation.views.optimal
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.text.TextPaint
 import android.view.Gravity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,11 +38,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import com.koreatech.kotrip_android.R
 import com.koreatech.kotrip_android.data.model.response.OptimalScheduleResponseDto
 import com.koreatech.kotrip_android.data.model.response.OptimalToursResponseDto
@@ -46,6 +53,8 @@ import com.koreatech.kotrip_android.presentation.components.organisms.KotripOpti
 import com.koreatech.kotrip_android.presentation.components.organisms.KotripOptimalScheduleItem
 import com.koreatech.kotrip_android.presentation.components.organisms.TourDetailDialog
 import com.koreatech.kotrip_android.presentation.components.parts.KotripOptimalTopBar
+import com.koreatech.kotrip_android.presentation.theme.MarkerBlue
+import com.koreatech.kotrip_android.presentation.theme.MarkerBlueBold
 import com.koreatech.kotrip_android.presentation.theme.Orange_FFCD4C
 import com.koreatech.kotrip_android.presentation.theme.Pink
 import com.koreatech.kotrip_android.presentation.utils.BackHandler
@@ -157,9 +166,10 @@ fun OptimalPage(
                                 }
                             )
 
-                            item.tours.forEachIndexed { index, optimalToursResponseDto ->
+                            item.tours.forEachIndexed { detailIndex, optimalToursResponseDto ->
                                 KotripOptimalItem(
-                                    position = if (index == 0) 1 else if (index == item.tours.size - 1) 2 else 0,
+                                    position = if (detailIndex == 0) 1 else if (detailIndex == item.tours.size - 1) 2 else 0,
+                                    tourItemPosition = index + 1 to detailIndex + 1,
                                     context = context,
                                     tourInfo = optimalToursResponseDto,
                                     onClick = {
@@ -224,24 +234,32 @@ fun OptimalPage(
             ) {
                 paths.forEachIndexed { index, latLngs ->
                     if (index == pathPosition) {
+                        /** 1일차 경로 표시 **/
+                        PathOverlay(
+                            coords = latLngs,
+                            width = 4.dp,
+                            color = MarkerBlueBold,
+                            outlineColor = Color.Black,
+                            outlineWidth = 1.dp
+                        )
+                    } else if (index == pathPosition + 1) {
+                        /** 2일차 경로 표시 **/
                         PathOverlay(
                             coords = latLngs,
                             width = 2.dp,
-                            color = Color.Blue,
-                            outlineWidth = 0.dp,
-                            outlineColor = Color.Blue,
+                            color = MarkerBlue,
+                            outlineColor = Color.Black,
+                            outlineWidth = 1.dp
                         )
-                    } else {
-                        if (index == pathPosition + 1 && pathPosition < routes.size - 1) {
-                            PathOverlay(
-                                coords = latLngs,
-                                width = 2.dp,
-                                color = Pink,
-                                outlineWidth = 0.dp,
-                                outlineColor = Pink,
-
-                                )
-                        }
+                    }
+                    else {
+                        PathOverlay(
+                            coords = latLngs,
+                            width = 2.dp,
+                            color = MarkerBlue,
+                            outlineColor = Color.Black,
+                            outlineWidth = 1.dp
+                        )
                     }
                 }
                 routes.forEachIndexed { index, markerTours ->
@@ -249,10 +267,18 @@ fun OptimalPage(
                         if (index == pathPosition) {
                             markerTours.tours.forEachIndexed { positionIndex, item ->
                                 val position = LatLng(item.latitude, item.longitude)
+                                /** 주 일정 마커 **/
                                 Marker(
                                     state = MarkerState(position),
-                                    captionText = "${item.title}\n${index + 1}-${positionIndex + 1}",
-                                    icon = OverlayImage.fromResource(R.drawable.ic_marker),
+                                    icon = OverlayImage.fromBitmap(
+                                        createBitmap(
+                                            "${index + 1}-${positionIndex + 1}",
+                                            context,
+                                            ContextCompat.getColor(
+                                                context, R.color.marker_blue_bold
+                                            )
+                                        )
+                                    ),
                                     onClick = {
                                         tourDetailInfo = item
                                         tourDetailVisible = true
@@ -263,11 +289,17 @@ fun OptimalPage(
                         } else if (index == pathPosition + 1) {
                             markerTours.tours.forEachIndexed { positionIndex, item ->
                                 val position = LatLng(item.latitude, item.longitude)
+                                /** 주 일정 + 1 마커 **/
                                 Marker(
                                     state = MarkerState(position),
-                                    captionText = "${item.title}\n${index + 1}-${positionIndex + 1}",
-                                    icon = OverlayImage.fromResource(R.drawable.ic_marker),
-                                    iconTintColor = Color.Red,
+                                    icon = OverlayImage.fromBitmap(
+                                        createBitmap(
+                                            "${index + 1}-${positionIndex + 1}", context,
+                                            ContextCompat.getColor(
+                                                context, R.color.marker_blue
+                                            )
+                                        )
+                                    ),
                                     onClick = {
                                         tourDetailInfo = item
                                         tourDetailVisible = true
@@ -276,13 +308,19 @@ fun OptimalPage(
                                 )
                             }
                         } else {
+                            /** 나머지 일차 마커 **/
                             markerTours.tours.forEachIndexed { positionIndex, item ->
                                 val position = LatLng(item.latitude, item.longitude)
                                 Marker(
                                     state = MarkerState(position),
-                                    icon = OverlayImage.fromResource(R.drawable.ic_marker_gray),
-//                                    captionText = "${it.title}\n${index + 1}-${positionIndex + 1}",
-//                                    captionTextSize = 10.sp,
+                                    icon = OverlayImage.fromBitmap(
+                                        createBitmap(
+                                            "${index + 1}-${positionIndex + 1}", context,
+                                            ContextCompat.getColor(
+                                                context, R.color.marker_blue
+                                            )
+                                        )
+                                    ),
                                     onClick = {
                                         tourDetailInfo = item
                                         tourDetailVisible = true
@@ -296,10 +334,35 @@ fun OptimalPage(
             }
         }
     }
-
-
 }
 
+fun createBitmap(position: String, context: Context, fillColor: Int): Bitmap {
+    val bitmap = Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
+    val paint = Paint().apply {
+        color = fillColor
+        style = Paint.Style.FILL
+    }
+    val borderPaint = Paint().apply {
+        color = android.graphics.Color.BLACK
+        style = Paint.Style.STROKE
+        strokeWidth = 1f
+    }
+
+    canvas.drawCircle(25f, 25f, 25f, paint)
+    canvas.drawCircle(25f, 25f, 25f, borderPaint)
+
+    val textPaint = Paint().apply {
+        color = android.graphics.Color.BLACK
+        textSize = 30f
+        textAlign = Paint.Align.CENTER
+    }
+    val text = position
+    val textHeight = textPaint.descent() + textPaint.ascent()
+    canvas.drawText(text, 25f, 25f - textHeight / 2, textPaint)
+
+    return bitmap
+}
 
 @Preview
 @Composable

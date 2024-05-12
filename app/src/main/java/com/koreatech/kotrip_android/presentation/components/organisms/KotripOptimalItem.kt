@@ -38,10 +38,11 @@ import com.koreatech.kotrip_android.presentation.theme.Orange_FF9800
 @Composable
 fun KotripOptimalItem(
     context: Context,
+    tourItemPosition: Pair<Int, Int>,
     tourInfo: OptimalToursResponseDto,
     position: Int = 0, // 1 : 출발지점 , 2 : 도착지점, -1 : 출발,도착 x 마지막 부분
     modifier: Modifier = Modifier,
-    onClick: (tourInfo: OptimalToursResponseDto) -> Unit
+    onClick: (tourInfo: OptimalToursResponseDto) -> Unit,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -101,7 +102,7 @@ fun KotripOptimalItem(
             }
             Spacer(modifier = Modifier.fillMaxWidth(0.1f))
             Text(
-                text = tourInfo.title,
+                text = "${tourItemPosition.first}-${tourItemPosition.second}. ${tourInfo.title}",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
@@ -134,6 +135,7 @@ fun KotripOptimalItemPreview() {
     Box(modifier = Modifier.fillMaxWidth()) {
         KotripOptimalItem(
             position = 0,
+            tourItemPosition = 1 to 1,
             context = LocalContext.current,
             tourInfo = OptimalToursResponseDto(
                 id = 1,
@@ -153,6 +155,7 @@ fun KotripOptimalItemPreview1() {
     Box(modifier = Modifier.fillMaxWidth()) {
         KotripOptimalItem(
             position = 1,
+            tourItemPosition = 1 to 1,
             context = LocalContext.current,
             tourInfo = OptimalToursResponseDto(
                 id = 1,
@@ -172,6 +175,7 @@ fun KotripOptimalItemPreview2() {
     Box(modifier = Modifier.fillMaxWidth()) {
         KotripOptimalItem(
             position = 2,
+            tourItemPosition = 1 to 1,
             context = LocalContext.current,
             tourInfo = OptimalToursResponseDto(
                 id = 1,

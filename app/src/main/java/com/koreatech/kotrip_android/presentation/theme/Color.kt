@@ -16,3 +16,6 @@ val Pink = Color(0xFFEF6DFF)
 val Red = Color(0xFFFFFFFF)
 val Blue = Color(0xFFFFFFFF)
 val Green = Color(0xFFFFFFFF)
+
+val MarkerBlueBold = Color(0xFFFF9800)
+val MarkerBlue = Color(0xffFFE5BE)
