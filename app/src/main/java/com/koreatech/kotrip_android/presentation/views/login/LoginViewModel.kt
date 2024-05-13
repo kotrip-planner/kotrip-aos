@@ -1,5 +1,6 @@
 package com.koreatech.kotrip_android.presentation.views.login
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.koreatech.kotrip_android.api.KotripApi
 import com.koreatech.kotrip_android.data.DataStoreImpl
@@ -17,13 +18,12 @@ import org.orbitmvi.orbit.viewmodel.container
 import timber.log.Timber
 
 class LoginViewModel(
-    private val kakaoService: KakaoService,
     private val dataStoreImpl: DataStoreImpl,
     private val kotripApi: KotripApi,
 ) : ContainerHost<LoginState, LoginSideEffect>, ViewModel() {
     override val container: Container<LoginState, LoginSideEffect> = container(LoginState())
 
-    fun kakaoLogin() {
+    fun kakaoLogin(kakaoService: KakaoService) {
         intent {
             reduce { state.copy(status = UiState.Loading) }
 
@@ -42,6 +42,7 @@ class LoginViewModel(
                             postSideEffect(sideEffect = LoginSideEffect.Completed)
                         }.onFailure {
                             reduce { state.copy(status = UiState.Failed) }
+                            Log.e("aaa", "kakao fail error : ${it.message}")
                             Timber.e("aaa error :${it.message}")
                             postSideEffect(sideEffect = LoginSideEffect.Toast(it.message ?: ""))
                         }

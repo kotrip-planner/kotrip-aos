@@ -1,6 +1,8 @@
 package com.koreatech.kotrip_android.kakao
 
+import android.app.Activity
 import android.content.Context
+import android.util.Log
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.user.UserApiClient
 import timber.log.Timber
@@ -18,6 +20,7 @@ class KakaoService(
         val callback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
             if (error != null) {
                 Timber.tag("kakao_error").e(error)
+                Log.e("aaa", "kakao error : $error")
             } else if (token != null) {
                 Timber.tag("kakao_token").e(token.accessToken)
                 loginSuccess(token.accessToken)

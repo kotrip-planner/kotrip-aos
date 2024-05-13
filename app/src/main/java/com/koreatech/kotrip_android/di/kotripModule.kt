@@ -1,5 +1,6 @@
 package com.koreatech.kotrip_android.di
 
+import android.app.Activity
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
@@ -9,6 +10,7 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.koreatech.kotrip_android.api.RetrofitManager
 import com.koreatech.kotrip_android.data.DataStoreImpl
 import com.koreatech.kotrip_android.kakao.KakaoService
+import com.koreatech.kotrip_android.presentation.MainActivity
 import com.koreatech.kotrip_android.presentation.views.entry.EntryViewModel
 import com.koreatech.kotrip_android.presentation.views.history.HistoryViewModel
 import com.koreatech.kotrip_android.presentation.views.home.HomeViewModel
@@ -81,7 +83,7 @@ val kotripModule = module {
     }
     viewModel {
         LoginViewModel(
-            kakaoService = get(),
+//            kakaoService = get(),
             dataStoreImpl = get(),
             kotripApi = get()
         )
@@ -103,8 +105,5 @@ val kotripModule = module {
     }
     viewModel {
         HistoryViewModel(get(), get())
-    }
-    factory {
-        KakaoService(androidContext())
     }
 }

@@ -5,6 +5,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.koreatech.kotrip_android.di.getComposeViewModel
+import com.koreatech.kotrip_android.kakao.KakaoService
 import com.koreatech.kotrip_android.presentation.screen.Screen
 import com.koreatech.kotrip_android.presentation.utils.showToast
 import com.koreatech.kotrip_android.presentation.views.login.LoginPage
@@ -24,8 +25,10 @@ fun NavGraphBuilder.loginComposable(navController: NavController) {
             }
         }
 
+        val kakaoService: KakaoService = KakaoService(context)
+
         LoginPage {
-            viewModel.kakaoLogin()
+            viewModel.kakaoLogin(kakaoService)
         }
     }
 }
