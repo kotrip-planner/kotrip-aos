@@ -87,7 +87,7 @@ val kotripModule = module {
         )
     }
     viewModel {
-        EntryViewModel()
+        EntryViewModel(get())
     }
     viewModel {
         TripViewModel(get())

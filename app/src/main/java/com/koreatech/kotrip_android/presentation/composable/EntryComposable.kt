@@ -22,13 +22,23 @@ fun NavGraphBuilder.entryComposable(navController: NavController) {
                 ) {
                     launchSingleTop = true
                 }
+
+                EntrySideEffect.Logout -> {
+                    navController.popBackStack()
+                }
+
+                EntrySideEffect.Withdraw -> {
+                    navController.popBackStack()
+                }
             }
         }
 
         EntryPage(
             onClickHistoryStep = { viewModel.moveToHistoryStep() },
             onClickScheduleStep = { viewModel.moveToTripStep(false) },
-            onClickOneDayStep = { viewModel.moveToTripStep(true) }
+            onClickOneDayStep = { viewModel.moveToTripStep(true) },
+            onWithdraw = { viewModel.withdraw() },
+            onLogout = { viewModel.logout() }
         )
     }
 
