@@ -113,32 +113,5 @@ fun TourPage(
                 )
             }
         }
-
-//        ExtendedFloatingActionButton(
-//            onClick = {
-//                val tourList = mutableListOf<TourInfo>()
-//                tours.filter { it.isSelected }.forEach {
-//                    tourList.add(it)
-//                }
-//                onClickTour(
-//                    tourList
-//                )
-//            },
-//            content = {
-//                Icon(
-//                    imageVector = Icons.Default.LocationOn,
-//                    contentDescription = null,
-//                    tint = Orange_FF9800
-//                )
-//                Spacer(modifier = Modifier.width(5.dp))
-//                Text(text = "관광지 선정하기")
-//            },
-//            containerColor = Orange_FFCD4C,
-//            contentColor = Color.Black,
-//            modifier = Modifier
-//                .align(Alignment.BottomEnd)
-//                .padding(10.dp)
-//                .alpha(if (day == -1) 0f else 1f)
-//        )
     }
 }
