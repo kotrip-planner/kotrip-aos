@@ -1,5 +1,7 @@
 package com.koreatech.kotrip_android.presentation.views.hotel
 
+import android.content.Context
+import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.koreatech.kotrip_android.Constants
@@ -24,7 +26,10 @@ class HotelViewModel(
     private val _hotels = MutableStateFlow<MutableList<HotelResponseDto>>(mutableListOf())
     val hotels = _hotels.asStateFlow()
 
-    suspend fun getHotel(x: Double, y: Double, bx: Double, by: Double) {
+    private val _hotelImages = MutableStateFlow<MutableList<Bitmap>>(mutableListOf())
+    val hotelImages = _hotelImages.asStateFlow()
+
+    suspend fun getHotel(x: Double, y: Double, bx: Double, by: Double, context: Context) {
         viewModelScope.launch {
             runCatching {
                 kotripAuthApi.getHotel(
@@ -39,6 +44,9 @@ class HotelViewModel(
             }.onSuccess {
                 val updatedHotels = it.data
                 _hotels.value = updatedHotels.toMutableList()
+                it.data.map { createCircleBitmapFromUrl(it.imageUrl1, context)!! }.let {
+                    _hotelImages.value = it.toMutableList()
+                }
             }.onFailure {
                 it.message
             }

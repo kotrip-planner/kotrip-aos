@@ -25,6 +25,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,6 +58,9 @@ import com.naver.maps.map.compose.PathOverlay
 import com.naver.maps.map.compose.rememberCameraPositionState
 import com.naver.maps.map.overlay.OverlayImage
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -74,6 +78,7 @@ fun HotelPage(
     secondRoutes: List<OptimalToursResponseDto>,
     paths: List<List<LatLng>>,
     hotels: List<HotelResponseDto>,
+    hotelImageBitmaps: List<Bitmap>,
     modifier: Modifier = Modifier,
     onAddClick: (hotel: HotelResponseDto, position: Int) -> Unit,
 ) {
@@ -99,13 +104,18 @@ fun HotelPage(
         mutableStateOf(false)
     }
 
-    val hotelImageBitmaps = mutableListOf<Bitmap>()
+//    val hotelImageBitmaps = mutableListOf<Bitmap>()
+//    runBlocking {
+//        hotels.forEach {
+//            hotelImageBitmaps.add(createCircleBitmapFromUrl(it.imageUrl1, context)!!)
+//        }
+//    }
 
-    runBlocking {
-        hotels.forEach {
-            hotelImageBitmaps.add(createCircleBitmapFromUrl(it.imageUrl1, context)!!)
-        }
-    }
+//    val coroutineScope = rememberCoroutineScope()
+//    val hotelImageBitmaps = coroutineScope.async {
+//        loadHotelImageBitmaps(hotels, context)
+//    }.await()
+
 
 
     HotelDetailDialog(
@@ -141,18 +151,17 @@ fun HotelPage(
                 outlineWidth = 1.dp,
                 outlineColor = Orange_FFCD4C
             )
-            hotels.forEachIndexed { index, hotel ->
-                val markerPosition = LatLng(hotel.latitude, hotel.longitude)
+            hotelImageBitmaps.forEachIndexed { index, bitmap ->
+                val markerPosition = LatLng(hotels[index].latitude, hotels[index].longitude)
                 Marker(
                     state = MarkerState(markerPosition),
-                    icon = if (hotelImageBitmaps[index] != null) {
-                        OverlayImage.fromBitmap(hotelImageBitmaps[index])
+                    icon = if (bitmap != null) {
+                        OverlayImage.fromBitmap(bitmap)
                     } else {
                         OverlayImage.fromResource(R.drawable.ic_hotel)
                     },
-//                    icon = OverlayImage.fromResource(R.drawable.ic_hotel),
                     onClick = {
-                        hotelDetailInfo = hotel
+                        hotelDetailInfo = hotels[index]
                         hotelDetailVisible = true
                         true
                     }
@@ -266,8 +275,23 @@ fun haversine(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
     return distance / 2
 }
 
+suspend fun loadHotelImageBitmaps(hotels: List<HotelResponseDto>, context: Context): List<Bitmap> {
+    val hotelImageBitmaps = mutableListOf<Bitmap>()
+
+    coroutineScope {
+        hotels.forEach { hotel ->
+            launch {
+                createCircleBitmapFromUrl(hotel.imageUrl1, context)?.let {
+                    hotelImageBitmaps.add(it)
+                }
+            }
+        }
+    }
+    return hotelImageBitmaps
+}
+
 suspend fun createCircleBitmapFromUrl(url: String, context: Context): Bitmap? = withContext(
-    Dispatchers.IO
+    Dispatchers.Default
 ) {
     // Glide를 이용해 이미지를 비트맵으로 다운로드
     try {
