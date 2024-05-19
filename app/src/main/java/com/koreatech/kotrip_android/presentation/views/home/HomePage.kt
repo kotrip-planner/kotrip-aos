@@ -2,8 +2,11 @@ package com.koreatech.kotrip_android.presentation.views.home
 
 import android.content.Context
 import android.util.Log
+import android.view.Gravity
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -47,12 +50,14 @@ import com.koreatech.kotrip_android.presentation.components.organisms.KotripSche
 import com.koreatech.kotrip_android.presentation.components.organisms.KotripTripItem
 import com.koreatech.kotrip_android.presentation.components.parts.KotripScheduleEmpty
 import com.koreatech.kotrip_android.presentation.components.parts.KotripTopBar
+import com.koreatech.kotrip_android.presentation.theme.White
 import com.koreatech.kotrip_android.presentation.utils.BackHandler
 import com.koreatech.kotrip_android.presentation.utils.showToast
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraPosition
 import com.naver.maps.map.compose.CameraPositionState
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
+import com.naver.maps.map.compose.MapUiSettings
 import com.naver.maps.map.compose.Marker
 import com.naver.maps.map.compose.MarkerState
 import com.naver.maps.map.compose.NaverMap
@@ -125,7 +130,9 @@ fun HomePage(
         }
     )
 
-    Column {
+    Column(
+        modifier = modifier.background(White)
+    ) {
         when (state.status) {
             UiState.Loading -> {
                 bottomSheetVisible = false
@@ -240,7 +247,6 @@ fun HomePage(
                                  * 2~5일 일정생성
                                  */
                                 itemsIndexed(tourList) { index, item ->
-                                    Log.e("aaa", "item : $item")
                                     KotripScheduleItem(
                                         schedule = dateList[index],
                                         day = index,
@@ -314,7 +320,13 @@ fun HomePage(
                         scope.launch {
                             scaffoldState.bottomSheetState.partialExpand()
                         }
-                    }
+                    },
+                    uiSettings = MapUiSettings(
+                        isZoomControlEnabled = false,
+                        logoGravity = Gravity.TOP or Gravity.END,
+                        logoMargin = PaddingValues(top = 15.dp, end = 15.dp),
+                        rotateGesturesFriction = 1f
+                    )
                 ) {
                     if (isOneDay) {
                         oneDayTourInfo?.let {

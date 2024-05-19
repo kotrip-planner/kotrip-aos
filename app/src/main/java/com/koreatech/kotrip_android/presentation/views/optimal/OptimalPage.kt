@@ -317,7 +317,7 @@ fun OptimalPage(
                 uiSettings = MapUiSettings(
                     isZoomControlEnabled = false,
                     logoGravity = Gravity.TOP or Gravity.END,
-                    logoMargin = PaddingValues(top = 30.dp),
+                    logoMargin = PaddingValues(top = 15.dp, end = 15.dp),
                     rotateGesturesFriction = 1f
                 ),
             ) {

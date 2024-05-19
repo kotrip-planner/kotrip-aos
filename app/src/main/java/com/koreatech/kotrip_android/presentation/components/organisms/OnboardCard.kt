@@ -25,6 +25,8 @@ import androidx.compose.ui.unit.sp
 import com.koreatech.kotrip_android.R
 import com.koreatech.kotrip_android.presentation.theme.Black
 import com.koreatech.kotrip_android.presentation.theme.Gray
+import com.koreatech.kotrip_android.presentation.theme.Orange4d
+import com.koreatech.kotrip_android.presentation.theme.Orange4dx
 
 @Composable
 fun OnboardCard(
@@ -37,7 +39,7 @@ fun OnboardCard(
         modifier = modifier
             .wrapContentHeight()
             .fillMaxWidth()
-            .background(Gray, shape = RoundedCornerShape(20.dp))
+            .background(Orange4dx, shape = RoundedCornerShape(20.dp))
             .padding(horizontal = 16.dp, vertical = 32.dp)
     ) {
         Row(

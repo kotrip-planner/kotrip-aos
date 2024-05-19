@@ -168,29 +168,6 @@ fun NavGraphBuilder.homeComposable(navController: NavController) {
                     } else {
                         viewModel.showToast("총 관광지는 ${dateList.size * 4}를 넘을 수 없다.")
                     }
-//                    var flag = true
-//                    val position = mutableListOf<Int>()
-//                    viewModel.tourDate?.total?.let {
-//                        repeat(it) { index ->
-//                            if (viewModel.homeTourList[index].isEmpty()) {
-//                                flag = false
-//                                position.add(index)
-//                            }
-//                        }
-//                    }
-//                    if (position.isNotEmpty()) {
-//                        viewModel.showToast("${position.first() + 1} 일차 관광지를 선정해주세요.")
-//                    }
-//                    if (flag) {
-//                        viewModel.setOptimalRoute(
-//                            title = title,
-//                            areaId = viewModel.cityInfo?.areaId ?: 0,
-//                            optimalRoutes = getOptimalRouteRequestDto(
-//                                viewModel.tourDate?.onPrintDateRange(),
-//                                viewModel.homeTourList
-//                            )
-//                        )
-//                    }
                 }
             },
             onBackPressed = {
