@@ -236,17 +236,12 @@ fun NavGraphBuilder.tourComposable(navController: NavController) {
             mutableStateOf<TourInfo?>(null)
         }
 
-//        val tours = mutableStateListOf<TourInfo>()
-//        tours.addAll(state.tours)
         viewModel.collectSideEffect {
             when (it) {
                 is HomeSideEffect.Toast -> showToast(context, it.message)
                 else -> Unit
             }
         }
-
-
-
 
         TourAddDialog(
             context = context,
@@ -312,66 +307,24 @@ fun NavGraphBuilder.tourComposable(navController: NavController) {
                             val updatedTourInfo =
                                 tours.value[position].copy(isSelected = !tourInfo.isSelected)
                             viewModel.updateToursSelection(position, updatedTourInfo)
-//                            tours.value[position] = updatedTourInfo
                         }
                     }
                 } else {
                     if (selectedTours.value.contains(tourInfo)) {
-                        viewModel.showToast("중복되는 관광지는 삭제해야 합니다.")
+//                        viewModel.showToast("중복되는 관광지는 삭제해야 합니다.")
                         dialogRemoveVisible = true
                         dialogRemoveTourInfo = tourInfo
                     } else {
                         dialogTourInfo = tourInfo
                         dialogVisible = true
-                        viewModel.showToast("관광지 선택 가능")
+//                        viewModel.showToast("관광지 선택 가능")
                     }
-
-
-//                        Log.e("aaa", "중복 관광지? : ${tourInfo.title}")
-//                    if (viewModel.homeTourList[day].filter { it.id == tourInfo.id }.isNotEmpty()) {
-//                        viewModel.showToast("중복되는 관광지는 선택할 수 없습니다.")
-//                    } else {
-//                        var flag = false
-//                        viewModel.homeTourList.forEach { tourList ->
-//                            if (tourList.filter { it.id == tourInfo.id }.isNotEmpty()) {
-//                                viewModel.showToast("중복되는 관광지는 선택할 수 없습니다.")
-//                                flag = true
-//                            }
-//                        }
-//                        if (!flag) {
-//                            val position = tours.value.indexOfFirst { it.id == tourInfo.id }
-//                            val updatedTourInfo =
-//                                tours.value[position].copy(isSelected = !tourInfo.isSelected)
-//                            viewModel.updateToursSelection(position, updatedTourInfo)
-////                            tours.value[position] = updatedTourInfo
-//                        }
-//                    }
                 }
 
             },
             onClickTour = { selectTours ->
                 if (selectTours.isEmpty()) {
-//                    viewModel.showToast("관광지를 하나라도 선택해야 합니다.")
                 } else {
-//                    if (isOneDay) {
-//                        if (viewModel.homeOneDayTourList.size > 10 || viewModel.homeOneDayTourList.size + selectTours.size > 10) {
-//                            viewModel.showToast("관광지는 최대 10까지 담을 수 있습니다.")
-//                        } else {
-//                            selectTours.forEach { item ->
-//                                viewModel.addItemHomeOneDayTourList(item)
-//                            }
-//                            navController.popBackStack()
-//                        }
-//                    } else {
-//                        if (viewModel.homeTourList[day].size > 4 || viewModel.homeTourList[day].size + selectTours.size > 4) {
-//                            viewModel.showToast("관광지는 최대 4까지 담을 수 있습니다.")
-//                        } else {
-//                            selectTours.forEach { item ->
-//                                viewModel.addItemHomeTourList(day, item)
-//                            }
-//                            navController.popBackStack()
-//                        }
-//                    }
                 }
             }
         )

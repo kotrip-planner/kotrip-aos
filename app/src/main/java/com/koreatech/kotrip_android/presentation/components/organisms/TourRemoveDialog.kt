@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -32,7 +33,8 @@ fun TourRemoveDialog(
             Column(
                 modifier = modifier
                     .fillMaxWidth()
-                    .background(Color.White, shape = RoundedCornerShape(16.dp)),
+                    .background(Color.White, shape = RoundedCornerShape(16.dp))
+                    .padding(vertical = 20.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {

@@ -1,9 +1,11 @@
 package com.koreatech.kotrip_android.presentation.components.organisms
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -19,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -42,14 +45,8 @@ fun TourCard(
     modifier: Modifier = Modifier,
 ) {
     Card(
-        modifier = modifier,
-//            .selectable(
-//            selected = selectedId == tourInfo.id,
-//            onClick = {
-//                if (selectedId == tourInfo.id) onSelectedIdChanged(tourInfo, -1)
-//                else onSelectedIdChanged(tourInfo, tourInfo.id)
-//            }
-//        ),
+        modifier = modifier
+            .background(color= Color.White),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(4.dp),
         onClick = {
@@ -60,6 +57,7 @@ fun TourCard(
             modifier = Modifier
                 .wrapContentHeight(Alignment.CenterVertically)
                 .wrapContentWidth(Alignment.CenterHorizontally)
+                .background(Color.White)
                 .padding(8.dp)
         ) {
             Text(
@@ -78,19 +76,17 @@ fun TourCard(
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(tourInfo.imageUrl)
-//                        .crossfade(true)
                         .build(),
                     error = painterResource(id = R.drawable.img_empty_tour),
-                    contentScale = ContentScale.Crop,
+                    contentScale = ContentScale.Fit,
                     contentDescription = null,
                     modifier = Modifier
-                        .size(width = 200.dp, height = 100.dp)
+                        .height(100.dp)
+                        .fillMaxWidth()
                         .clip(RoundedCornerShape(16.dp))
                         .alpha(if(selectedTours.contains(tourInfo)) 0.5f else 1f)
                 )
                 if(selectedTours.contains(tourInfo)) {
-//                if (selectedId == tourInfo.id) {
-//                if (tourInfo.isSelected) {
                     Image(
                         painter = painterResource(id = R.drawable.img_check),
                         contentDescription = null,

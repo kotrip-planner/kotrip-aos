@@ -1,6 +1,7 @@
 package com.koreatech.kotrip_android.presentation.views.tour
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,10 +14,13 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,7 +55,9 @@ fun TourPage(
     onClick: (tourInfo: TourInfo) -> Unit,
     onClickTour: (List<TourInfo>) -> Unit,
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .background(Color.White)) {
 
         LazyColumn(
             modifier = Modifier
@@ -70,7 +76,17 @@ fun TourPage(
                 TextField(
                     value = searchText,
                     onValueChange = onSearchTextChanged,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.White,
+                        focusedContainerColor = Color.White,
+                        unfocusedIndicatorColor = Color.Black,
+                        focusedIndicatorColor = Color.Gray
+                    ),
+                    trailingIcon = {
+                        Icon(imageVector = Icons.Default.Search, contentDescription = null)
+                    }
                 )
                 Spacer(modifier = Modifier.height(10.dp))
             }
