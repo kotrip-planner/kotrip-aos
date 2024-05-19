@@ -203,6 +203,10 @@ fun NavGraphBuilder.tourComposable(navController: NavController) {
 
         val searchText by viewModel.searchText.collectAsStateWithLifecycle()
         val selectedTours = viewModel.selectedTours.collectAsStateWithLifecycle()
+        val homeTours = viewModel.homeTours.collectAsStateWithLifecycle()
+
+        Timber.e("aaa tour homeTours : ${homeTours.value}")
+
         var selectedId by remember {
             mutableStateOf(-1)
         }
@@ -262,6 +266,7 @@ fun NavGraphBuilder.tourComposable(navController: NavController) {
             },
             selectedTours = selectedTours.value,
             searchText = searchText,
+            homeTours = homeTours.value,
             onSearchTextChanged = viewModel::onSearchTextChange,
             cityInfo = viewModel.cityInfo ?: CityInfo(),
             state = state,

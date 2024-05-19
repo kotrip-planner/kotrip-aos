@@ -40,13 +40,14 @@ fun TourCard(
     tourInfo: TourInfo,
     selectedId: Int,
     onSelectedIdChanged: (tourInfo: TourInfo, id: Int) -> Unit,
+    homeTours: List<List<TourInfo>>,
     selectedTours: List<TourInfo>,
     onClick: (tourInfo: TourInfo) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Card(
         modifier = modifier
-            .background(color= Color.White),
+            .background(color = Color.White),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(4.dp),
         onClick = {
@@ -84,15 +85,25 @@ fun TourCard(
                         .height(100.dp)
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(16.dp))
-                        .alpha(if(selectedTours.contains(tourInfo)) 0.5f else 1f)
+                        .alpha(if (selectedTours.contains(tourInfo)) 0.5f else 1f)
                 )
-                if(selectedTours.contains(tourInfo)) {
+                if (selectedTours.contains(tourInfo)) {
                     Image(
                         painter = painterResource(id = R.drawable.img_check),
                         contentDescription = null,
                         modifier = Modifier
                             .size(50.dp)
                     )
+                }
+                homeTours.forEachIndexed { index, tourInfos ->
+                    if (tourInfo in tourInfos) {
+                        Text(
+                            text = "${index + 1} 일차",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp,
+                            color = Color.Black
+                        )
+                    }
                 }
             }
         }

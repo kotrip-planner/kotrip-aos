@@ -1,6 +1,7 @@
 package com.koreatech.kotrip_android.presentation.components.parts
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -29,37 +30,47 @@ import com.koreatech.kotrip_android.model.home.TourInfo
 
 @Composable
 fun KotripTourRow(
+    index: Int = 0,
+    tourPosition: Int = 0,
     tourInfo: TourInfo,
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier = Modifier.padding(end = 5.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(tourInfo.imageUrl)
-                .crossfade(true)
-                .build(),
-            error = painterResource(id = R.drawable.img_empty_tour),
-            contentScale = ContentScale.Crop,
-            contentDescription = null,
-            modifier = modifier
-                .size(50.dp)
-                .clip(CircleShape)
-        )
-        Spacer(modifier = Modifier.height(5.dp))
-        Text(
-            text = tourInfo.title,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black,
-            fontSize = 12.sp,
-            textAlign = TextAlign.Center,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.width(50.dp)
-        )
-
+    Row {
+        if (tourPosition == 0) {
+            Text(
+                text = "$index 일차",
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(horizontal = 5.dp)
+            )
+        }
+        Column(
+            modifier = Modifier.padding(end = 5.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(tourInfo.imageUrl)
+                    .crossfade(true)
+                    .build(),
+                error = painterResource(id = R.drawable.img_empty_tour),
+                contentScale = ContentScale.Crop,
+                contentDescription = null,
+                modifier = modifier
+                    .size(50.dp)
+                    .clip(CircleShape)
+            )
+            Spacer(modifier = Modifier.height(5.dp))
+            Text(
+                text = tourInfo.title,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                fontSize = 12.sp,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.width(50.dp)
+            )
+        }
     }
 }
 
@@ -67,6 +78,8 @@ fun KotripTourRow(
 @Composable
 fun KotripTourRowPreview() {
     KotripTourRow(
+        index = 1,
+        tourPosition = 0,
         TourInfo(
             1,
             "해운대",

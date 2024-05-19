@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
@@ -48,6 +49,7 @@ fun TourPage(
     onSearchTextChanged: (text: String) -> Unit,
     cityInfo: CityInfo,
     state: HomeState,
+    homeTours: List<List<TourInfo>>,
     oneDayStartTourInfo: TourInfo?,
     rememberTours: List<TourInfo>,
     tours: List<TourInfo>,
@@ -102,19 +104,23 @@ fun TourPage(
                             KotripTourRow(tourInfo = oneDayStartTourInfo)
                         }
                     }
-                    items(rememberTours) { it ->
-                        KotripTourRow(tourInfo = it)
+                    homeTours.forEachIndexed { index, tourInfos ->
+                        itemsIndexed(tourInfos) { tourPosition, tour ->
+                            KotripTourRow(index = index + 1, tourPosition = tourPosition, tourInfo = tour)
+                        }
                     }
+//                    items(rememberTours) { it ->
+//                        KotripTourRow(tourInfo = it)
+//                    }
                 }
                 Spacer(modifier = Modifier.height(10.dp))
             }
-
-
 
             setUpTwoGrip(tours) { one, two, _, _ ->
                 TourTwoCard(
                     selectedId = selectedId,
                     onSelectedIdChanged = onSelectedIdChanged,
+                    homeTours = homeTours,
                     selectedTours = selectedTours,
                     one = one,
                     onClickedOne = { tourInfo ->
