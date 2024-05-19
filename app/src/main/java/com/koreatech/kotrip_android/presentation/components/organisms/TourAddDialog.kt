@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.koreatech.kotrip_android.model.home.TourInfo
 
@@ -35,12 +36,14 @@ fun TourAddDialog(
                 modifier = modifier
                     .fillMaxWidth()
                     .background(Color.White, shape = RoundedCornerShape(16.dp))
-                    .padding(vertical = 20.dp)
-                ,
+                    .padding(vertical = 20.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = "${tourInfo?.title}\n를 추가하시겠습니까?")
+                Text(
+                    text = "${tourInfo?.title}\n를 추가하시겠습니까?",
+                    textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth()
+                )
 
                 Spacer(modifier = Modifier.height(10.dp))
                 Button(

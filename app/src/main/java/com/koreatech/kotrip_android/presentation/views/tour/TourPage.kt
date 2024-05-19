@@ -82,11 +82,13 @@ fun TourPage(
                         unfocusedContainerColor = Color.White,
                         focusedContainerColor = Color.White,
                         unfocusedIndicatorColor = Color.Black,
-                        focusedIndicatorColor = Color.Gray
+                        focusedIndicatorColor = Color.Gray,
+                        cursorColor = Orange_FF9800
                     ),
                     trailingIcon = {
                         Icon(imageVector = Icons.Default.Search, contentDescription = null)
-                    }
+                    },
+                    maxLines = 1
                 )
                 Spacer(modifier = Modifier.height(10.dp))
             }

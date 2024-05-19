@@ -7,8 +7,10 @@ import com.koreatech.kotrip_android.data.mapper.toCityInfoList
 import com.koreatech.kotrip_android.model.trip.CityInfo
 import com.koreatech.kotrip_android.model.trip.TourDate
 import com.koreatech.kotrip_android.presentation.common.UiState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.syntax.simple.intent
@@ -35,7 +37,7 @@ class TripViewModel(
     }
 
     fun getCity() = intent {
-        viewModelScope.launch {
+        withContext(Dispatchers.Default) {
             val cityInfoList = kotripApi.getCity().toCityInfoList()
             delay(2000)
             reduce { state.copy(cities = cityInfoList) }

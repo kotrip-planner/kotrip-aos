@@ -15,13 +15,17 @@ import com.koreatech.kotrip_android.model.home.TourInfo
 import com.koreatech.kotrip_android.model.trip.CityInfo
 import com.koreatech.kotrip_android.model.trip.TourDate
 import com.koreatech.kotrip_android.presentation.common.UiState
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.syntax.simple.intent
@@ -133,12 +137,13 @@ class HomeViewModel(
 
 
     fun getTour() = intent {
-        viewModelScope.launch {
-//            reduce { state.copy(status = UiState.FindLoading) }
-            val tours = kotripApi.getTour(cityInfo?.areaId ?: 0).toTourInfoList().toMutableList()
-            _tours.value = tours
+        withContext(Dispatchers.Default) {
+            if (_tours.value.isEmpty()) {
+                val tours = kotripApi.getTour(cityInfo?.areaId ?: 0).toTourInfoList().toMutableList()
+                _tours.value = tours
 //            reduce { state.copy(tours = tours) }
-            reduce { state.copy(status = UiState.Success) }
+                reduce { state.copy(status = UiState.Success) }
+            }
         }
     }
 

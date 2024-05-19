@@ -114,7 +114,6 @@ fun OptimalPage(
     var pathPosition by remember {
         mutableStateOf(0)
     }
-    Timber.e("aaa pathPosition : $pathPosition")
 
     var tourDetailInfo by remember {
         mutableStateOf<OptimalToursResponseDto?>(null)
@@ -321,7 +320,6 @@ fun OptimalPage(
                     rotateGesturesFriction = 1f
                 ),
             ) {
-                Timber.e("aaa paths size : ${paths.size}")
                 paths.forEachIndexed { index, latLngs ->
                     if (index != pathPosition) {
                         PathOverlay(

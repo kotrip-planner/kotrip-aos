@@ -119,8 +119,7 @@ fun KotripOptimalItem(
                 .crossfade(true)
                 .build(),
             contentDescription = null,
-            contentScale = ContentScale.Crop,
-            placeholder = painterResource(id = R.drawable.ic_question_black),
+            contentScale = ContentScale.Fit,
             error = painterResource(id = R.drawable.ic_error),
             modifier = Modifier
                 .padding(bottom = 20.dp)

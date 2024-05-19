@@ -8,9 +8,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -53,23 +59,35 @@ fun KotripOptimalDialog(
             ) {
                 Text(
                     text = "최적의 일정",
-                    fontSize = 18.sp,
-                    color = Color.Black
+                    fontSize = 20.sp,
+                    color = Color.Black,
+                    fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(5.dp))
 
                 Text(
                     text = "나만의 여행 일정 제목을 선정해주세요.",
-                    fontSize = 12.sp,
+                    fontSize = 14.sp,
                     color = Color.Black
                 )
                 Spacer(modifier = Modifier.height(10.dp))
 
-                CustomTextField(
-                    text = textFieldValue,
-                    onTextChanged = { newText ->
+                TextField(
+                    value = textFieldValue,
+                    onValueChange = { newText ->
                         textFieldValue = newText
-                    }
+                    },
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.White,
+                        focusedContainerColor = Color.White,
+                        unfocusedIndicatorColor = Color.Black,
+                        focusedIndicatorColor = Color.Gray,
+                        cursorColor = Orange_FF9800
+                    ),
+                    leadingIcon = {
+                        Icon(imageVector = Icons.Default.LocationOn, contentDescription = null)
+                    },
+                    maxLines = 1,
                 )
 
                 Spacer(modifier = Modifier.height(10.dp))

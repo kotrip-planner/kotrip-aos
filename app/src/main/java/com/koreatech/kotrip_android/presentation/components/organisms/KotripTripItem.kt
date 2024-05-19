@@ -126,7 +126,7 @@ fun KotripTripItem(
                 .crossfade(true)
                 .build(),
             contentDescription = null,
-            contentScale = ContentScale.Crop,
+            contentScale = ContentScale.Fit,
             placeholder = painterResource(id = R.drawable.ic_question_black),
             error = painterResource(id = R.drawable.ic_error),
             modifier = Modifier

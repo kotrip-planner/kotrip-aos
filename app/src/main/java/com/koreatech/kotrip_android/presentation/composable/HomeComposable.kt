@@ -1,6 +1,7 @@
 package com.koreatech.kotrip_android.presentation.composable
 
 import android.util.Log
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -192,9 +193,14 @@ fun NavGraphBuilder.tourComposable(navController: NavController) {
         val state by viewModel.collectAsState()
         val isOneDay = backEntry.arguments?.getBoolean(Screen.isOneDay) ?: false
         val day = backEntry.arguments?.getInt(Screen.day) ?: 0
-        viewModel.getTour()
 
         val tours = viewModel.tours.collectAsStateWithLifecycle()
+        LaunchedEffect(key1 = Unit) {
+            if (tours.value.isEmpty()) {
+                viewModel.getTour()
+            }
+        }
+
         val searchText by viewModel.searchText.collectAsStateWithLifecycle()
         val selectedTours = viewModel.selectedTours.collectAsStateWithLifecycle()
         var selectedId by remember {
