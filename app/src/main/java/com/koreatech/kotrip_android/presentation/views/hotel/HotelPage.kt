@@ -180,14 +180,16 @@ fun HotelPage(
                         )
                     ),
                 )
-                PathOverlay(
-                    coords = paths[position],
-                    width = 4.dp,
-                    color = MarkerBlueBold,
-                    outlineWidth = 1.dp,
-                    outlineColor = Color.Black,
-                    zIndex = 10
-                )
+                if(paths[position].isNotEmpty()) {
+                    PathOverlay(
+                        coords = paths[position],
+                        width = 4.dp,
+                        color = MarkerBlueBold,
+                        outlineWidth = 1.dp,
+                        outlineColor = Color.Black,
+                        zIndex = 10
+                    )
+                }
             }
             secondRoutes.forEachIndexed { index, tour ->
                 val tourPosition = LatLng(tour.latitude, tour.longitude)
@@ -202,13 +204,15 @@ fun HotelPage(
                         )
                     ),
                 )
-                PathOverlay(
-                    coords = paths[position + 1],
-                    width = 2.dp,
-                    color = MarkerBlue,
-                    outlineColor = Color.Black,
-                    outlineWidth = 1.dp
-                )
+                if (paths[position+1].isNotEmpty()){
+                    PathOverlay(
+                        coords = paths[position + 1],
+                        width = 2.dp,
+                        color = MarkerBlue,
+                        outlineColor = Color.Black,
+                        outlineWidth = 1.dp
+                    )
+                }
             }
         }
         if (hotels.isEmpty()) {

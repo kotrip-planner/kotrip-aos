@@ -205,6 +205,7 @@ fun OptimalPage(
                                 KotripOptimalItem(
                                     position = if (detailIndex == 0) 1 else if (detailIndex == item.tours.size - 1) 2 else 0,
                                     tourItemPosition = index + 1 to detailIndex + 1,
+                                    tourSize = item.tours.size,
                                     context = context,
                                     tourInfo = optimalToursResponseDto,
                                     onClick = {
@@ -321,23 +322,25 @@ fun OptimalPage(
                 ),
             ) {
                 paths.forEachIndexed { index, latLngs ->
-                    if (index != pathPosition) {
-                        PathOverlay(
-                            coords = latLngs,
-                            width = 2.dp,
-                            color = MarkerBlue,
-                            outlineColor = Color.Black,
-                            outlineWidth = 1.dp
-                        )
-                    } else {
-                        PathOverlay(
-                            coords = latLngs,
-                            width = 4.dp,
-                            color = MarkerBlueBold,
-                            outlineColor = Color.Black,
-                            outlineWidth = 1.dp,
-                            zIndex = 10
-                        )
+                    if (latLngs.isNotEmpty()){
+                        if (index != pathPosition ) {
+                            PathOverlay(
+                                coords = latLngs,
+                                width = 2.dp,
+                                color = MarkerBlue,
+                                outlineColor = Color.Black,
+                                outlineWidth = 1.dp
+                            )
+                        } else {
+                            PathOverlay(
+                                coords = latLngs,
+                                width = 4.dp,
+                                color = MarkerBlueBold,
+                                outlineColor = Color.Black,
+                                outlineWidth = 1.dp,
+                                zIndex = 10
+                            )
+                        }
                     }
                 }
                 if (hotels.isNotEmpty()) {

@@ -59,7 +59,7 @@ class OptimalViewModel(
             viewModelScope.launch {
                 initLocation.forEachIndexed { index, naverLocation ->
                     val newList = mutableListOf<LatLng>()
-                    if (naverLocation.start.isNotEmpty()) {
+                    if (naverLocation.start.isNotEmpty() && naverLocation.goal.isNotEmpty()) {
                         runCatching {
                             kotripNaverApi.getDriving5(
                                 clientId,
@@ -85,6 +85,8 @@ class OptimalViewModel(
                             postSideEffect(OptimalSideEffect.Toast(it.message ?: ""))
                         }
                         naverPaths.add(newList)
+                    } else {
+                        naverPaths.add(mutableListOf())
                     }
                 }
                 reduce {

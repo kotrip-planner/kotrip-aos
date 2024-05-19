@@ -38,6 +38,7 @@ import com.koreatech.kotrip_android.presentation.theme.Orange_FF9800
 @Composable
 fun KotripOptimalItem(
     context: Context,
+    tourSize: Int,
     tourItemPosition: Pair<Int, Int>,
     tourInfo: OptimalToursResponseDto,
     position: Int = 0, // 1 : 출발지점 , 2 : 도착지점, -1 : 출발,도착 x 마지막 부분
@@ -83,7 +84,7 @@ fun KotripOptimalItem(
                     modifier = Modifier
                         .size(30.dp)
                 )
-                if (position == 0 || position == 1) {
+                if (position == 0 || position == 1 && tourSize > 1) {
                     Canvas(
                         modifier = Modifier
                             .size(width = 2.5.dp, height = 35.dp)
@@ -135,6 +136,7 @@ fun KotripOptimalItemPreview() {
         KotripOptimalItem(
             position = 0,
             tourItemPosition = 1 to 1,
+            tourSize = 1,
             context = LocalContext.current,
             tourInfo = OptimalToursResponseDto(
                 id = 1,
@@ -156,6 +158,7 @@ fun KotripOptimalItemPreview1() {
             position = 1,
             tourItemPosition = 1 to 1,
             context = LocalContext.current,
+            tourSize = 2,
             tourInfo = OptimalToursResponseDto(
                 id = 1,
                 title = "해운대",
@@ -176,6 +179,7 @@ fun KotripOptimalItemPreview2() {
             position = 2,
             tourItemPosition = 1 to 1,
             context = LocalContext.current,
+            tourSize = 2,
             tourInfo = OptimalToursResponseDto(
                 id = 1,
                 title = "해운대",

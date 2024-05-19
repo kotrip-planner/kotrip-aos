@@ -31,9 +31,6 @@ fun NavGraphBuilder.optimalComposable(navController: NavController) {
 
         val routes = viewModel.optimalTours
         val hotels = viewModel.hotels.collectAsStateWithLifecycle()
-        val hotelsMarker = remember {
-            mutableStateListOf<HotelResponseDto>()
-        }
 
         var start = ""
         var goal = ""
@@ -54,6 +51,7 @@ fun NavGraphBuilder.optimalComposable(navController: NavController) {
                 }
                 locations.add(NaverLocation(start, goal, waypoints))
                 waypoints = ""
+                goal = ""
             }
         }
 
