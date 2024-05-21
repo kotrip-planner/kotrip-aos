@@ -25,10 +25,16 @@ fun NavGraphBuilder.entryComposable(navController: NavController) {
 
                 EntrySideEffect.Logout -> {
                     navController.popBackStack()
+                    navController.navigate(
+                        route= Screen.Login.route
+                    )
                 }
 
                 EntrySideEffect.Withdraw -> {
                     navController.popBackStack()
+                    navController.navigate(
+                        route= Screen.Login.route
+                    )
                 }
             }
         }

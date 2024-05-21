@@ -20,7 +20,10 @@ fun NavGraphBuilder.loginComposable(navController: NavController) {
 
         viewModel.collectSideEffect {
             when (it) {
-                is LoginSideEffect.Completed -> navController.navigate(route = Screen.Entry.route)
+                is LoginSideEffect.Completed -> {
+                    navController.popBackStack()
+                    navController.navigate(route = Screen.Entry.route)
+                }
                 is LoginSideEffect.Toast -> showToast(context, it.message)
             }
         }
