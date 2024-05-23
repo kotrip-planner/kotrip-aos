@@ -77,7 +77,9 @@ fun NavGraphBuilder.optimalComposable(navController: NavController) {
                 viewModel.clear()
                 state.paths.clear()
                 navController.navigate(Screen.Entry.route) {
-                    popUpTo(Screen.Optimal.route)
+                    popUpTo(Screen.Optimal.route) {
+                        inclusive = true
+                    }
                 }
             }
         )

@@ -188,7 +188,9 @@ fun NavGraphBuilder.homeComposable(navController: NavController) {
                 optimalViewModel.clear()
                 viewModel.clear()
                 navController.navigate(Screen.Entry.route) {
-                    popUpTo(Screen.Home.route)
+                    popUpTo(Screen.Home.route) {
+                        inclusive = true
+                    }
                 }
             }
         )

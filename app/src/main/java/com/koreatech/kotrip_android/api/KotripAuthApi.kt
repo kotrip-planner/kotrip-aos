@@ -10,6 +10,7 @@ import com.koreatech.kotrip_android.data.model.response.HotelResponseDto
 import com.koreatech.kotrip_android.data.model.response.UUIDResponseDto
 import com.koreatech.kotrip_android.data.model.response.OptimalRouteResponseDto
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
@@ -79,10 +80,10 @@ interface KotripAuthApi {
     /**
      * 회원 탈퇴
      */
-//    @DELETE("withdrawal")
-//    suspend fun withdraw(
-//        @Header(AUTHORIZATION_PREFIX) token: String
-//    ): BaseResponse
+    @DELETE("api/withdrawal")
+    suspend fun withdraw(
+        @Header(AUTHORIZATION_PREFIX) token: String
+    ): BaseResponse<Unit>
 }
 
 data class ScheduleRequest(

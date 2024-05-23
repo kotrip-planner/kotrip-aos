@@ -47,11 +47,11 @@ class EntryViewModel(
 
     fun withdraw() {
         viewModelScope.launch {
-//            kotripAuthApi.withdraw(
-//                token = "${Constants.BEARER_PREFIX} ${
-//                    dataStoreImpl.getAccessToken().first().toString()
-//                }"
-//            )
+            kotripAuthApi.withdraw(
+                token = "${Constants.BEARER_PREFIX} ${
+                    dataStoreImpl.getAccessToken().first().toString()
+                }"
+            )
             intent { postSideEffect(EntrySideEffect.Withdraw) }
         }
     }

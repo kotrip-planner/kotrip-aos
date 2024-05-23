@@ -13,3 +13,4 @@ data class BaseResponse <T> (
     @SerializedName("data")
     val data: T
 )
+
