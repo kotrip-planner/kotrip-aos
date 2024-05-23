@@ -184,7 +184,8 @@ class HomeViewModel(
         viewModelScope.launch {
             reduce { state.copy(status = UiState.Loading) }
             val response =
-                kotripAuthApi.postOptimalRoutes(
+                kotripAuthApi.postTSPOptimalRoute(
+//                kotripAuthApi.postOptimalRoutes(
                     "$BEARER_PREFIX ${
                         dataStoreImpl.getAccessToken().first().toString()
                     }", GenerateScheduleRequestDto(title, areaId, optimalRoutes)
