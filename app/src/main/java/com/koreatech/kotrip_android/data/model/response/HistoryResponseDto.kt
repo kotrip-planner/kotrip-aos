@@ -12,6 +12,8 @@ data class HistoryDataResponseDto(
     val uuid: String,
     @SerializedName("title")
     val title: String,
+    @SerializedName("city")
+    val city: String,
     @SerializedName("imageUrl")
     val imageUrl: String,
     @SerializedName("startDate")

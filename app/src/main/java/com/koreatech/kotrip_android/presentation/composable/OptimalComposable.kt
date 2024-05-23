@@ -1,10 +1,7 @@
 package com.koreatech.kotrip_android.presentation.composable
 
-import android.util.Log
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -12,7 +9,6 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.koreatech.kotrip_android.BuildConfig
 import com.koreatech.kotrip_android.R
-import com.koreatech.kotrip_android.data.model.response.HotelResponseDto
 import com.koreatech.kotrip_android.di.getActivityComposeViewModel
 import com.koreatech.kotrip_android.presentation.screen.Screen
 import com.koreatech.kotrip_android.presentation.utils.showToast
@@ -20,7 +16,6 @@ import com.koreatech.kotrip_android.presentation.views.optimal.NaverLocation
 import com.koreatech.kotrip_android.presentation.views.optimal.OptimalPage
 import com.koreatech.kotrip_android.presentation.views.optimal.OptimalViewModel
 import org.orbitmvi.orbit.compose.collectAsState
-import timber.log.Timber
 
 fun NavGraphBuilder.optimalComposable(navController: NavController) {
     composable(route = Screen.Optimal.route) {
@@ -65,23 +60,24 @@ fun NavGraphBuilder.optimalComposable(navController: NavController) {
             }
         }
 
+        BackOnPressed()
+
         OptimalPage(
             state = state.status,
             city = viewModel.city,
             routes = routes,
             hotels = hotels.value,
             paths = state.paths,
-            onBackPressed = {
-                    if (System.currentTimeMillis() - originBackPressedTime > 2000) {
-                        originBackPressedTime = System.currentTimeMillis()
-                        showToast(context, "뒤로가기 한 번 더 누르면, 종료합니다.")
-                    } else {
-                        navController.popBackStack()
-                    }
-            },
             onLoadHotel = { x, y, bx, by, pos ->
                 navController.navigate(route = Screen.Hotel.createRoute(x.toString(), y.toString(), bx.toString(), by.toString(), pos)) {
                     launchSingleTop = true
+                }
+            },
+            onHomeClick = {
+                viewModel.clear()
+                state.paths.clear()
+                navController.navigate(Screen.Entry.route) {
+                    popUpTo(Screen.Optimal.route)
                 }
             }
         )

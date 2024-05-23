@@ -17,20 +17,27 @@ import org.orbitmvi.orbit.syntax.simple.intent
 import org.orbitmvi.orbit.syntax.simple.postSideEffect
 import org.orbitmvi.orbit.syntax.simple.reduce
 import org.orbitmvi.orbit.viewmodel.container
-import timber.log.Timber
 
 class OptimalViewModel(
     private val kotripNaverApi: KotripNaverApi,
 ) : ContainerHost<OptimalState, OptimalSideEffect>, ViewModel() {
     override val container: Container<OptimalState, OptimalSideEffect> = container(OptimalState())
 
-    val naverPaths: MutableList<MutableList<LatLng>> = mutableListOf()
-    val optimalTours = mutableListOf<OptimalScheduleResponseDto>()
+    var naverPaths: MutableList<MutableList<LatLng>> = mutableListOf()
+    var optimalTours = mutableListOf<OptimalScheduleResponseDto>()
     var city: String = ""
 
     private val _hotels = MutableStateFlow<List<HotelResponseDto?>>(emptyList())
     val hotels = _hotels.asStateFlow()
 
+
+    fun clear() {
+        optimalTours = mutableListOf()
+        naverPaths = mutableListOf()
+        city = ""
+        _hotels.value = emptyList()
+        container.stateFlow.value.paths.clear()
+    }
 
     fun initHotels(size: Int) {
         if (!_hotels.value.contains(null)) {
@@ -61,7 +68,8 @@ class OptimalViewModel(
                     val newList = mutableListOf<LatLng>()
                     if (naverLocation.start.isNotEmpty() && naverLocation.goal.isNotEmpty()) {
                         runCatching {
-                            kotripNaverApi.getDriving5(
+                            kotripNaverApi.getDriving15(
+//                            kotripNaverApi.getDriving5(
                                 clientId,
                                 clientSecret,
                                 naverLocation.start,

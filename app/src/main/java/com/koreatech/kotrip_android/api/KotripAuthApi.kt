@@ -9,6 +9,7 @@ import com.koreatech.kotrip_android.data.model.response.HotelResponseDto
 import com.koreatech.kotrip_android.data.model.response.UUIDResponseDto
 import com.koreatech.kotrip_android.data.model.response.OptimalRouteResponseDto
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
@@ -24,12 +25,22 @@ interface KotripAuthApi {
         @Body generateScheduleRequestDto: GenerateScheduleRequestDto,
     ): BaseResponse<UUIDResponseDto>
 
+    /**
+     * 당일치기 경로 저장
+     */
+    @POST("api/day")
+    suspend fun postOptimalRouteDay(
+        @Header(AUTHORIZATION_PREFIX) token: String,
+        @Body generateScheduleRequestDto: GenerateScheduleRequestDto
+    ): BaseResponse<UUIDResponseDto>
+
 
     /**
      * UUID 일정 불러오기
      */
     @POST("api/history")
-    suspend fun getSchedule(
+    suspend fun
+            getSchedule(
         @Header(AUTHORIZATION_PREFIX) token: String,
         @Body scheduleRequest: ScheduleRequest,
     ): BaseResponse<OptimalRouteResponseDto>
@@ -53,6 +64,14 @@ interface KotripAuthApi {
         @Query("mapBX") bxLongitude: Double,
         @Query("mapBY") byLatitude: Double,
     ): BaseResponse<List<HotelResponseDto>>
+
+    /**
+     * 회원 탈퇴
+     */
+//    @DELETE("withdrawal")
+//    suspend fun withdraw(
+//        @Header(AUTHORIZATION_PREFIX) token: String
+//    ): BaseResponse
 }
 
 data class ScheduleRequest(

@@ -96,6 +96,7 @@ fun TourHistoryCardPreview() {
             tourHistoryInfo = HistoryDataResponseDto(
                 uuid = "151512",
                 title = "해운대",
+                city = "서울",
                 imageUrl = "adfa",
                 startDate = "2024-04-01",
                 endDate = "2024-04-03"

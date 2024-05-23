@@ -1,6 +1,5 @@
 package com.koreatech.kotrip_android.presentation.views.home
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.koreatech.kotrip_android.Constants.BEARER_PREFIX
@@ -15,13 +14,11 @@ import com.koreatech.kotrip_android.model.home.TourInfo
 import com.koreatech.kotrip_android.model.trip.CityInfo
 import com.koreatech.kotrip_android.model.trip.TourDate
 import com.koreatech.kotrip_android.presentation.common.UiState
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -44,12 +41,14 @@ class HomeViewModel(
     var tourDate: TourDate? = null
     var startPositionChecked: Boolean = false
 
-    var homeTourList: List<MutableList<TourInfo>> = emptyList()
     var homeOneDayStartTourInfo: TourInfo? = null
     var homeOneDayTourList: MutableList<TourInfo> = mutableListOf()
 
     private val _homeTours = MutableStateFlow(listOf(mutableListOf<TourInfo>()))
     val homeTours = _homeTours.asStateFlow()
+
+    private val _oneDayHomeTours = MutableStateFlow(mutableListOf<TourInfo>())
+    val oneDayHomeTours = _oneDayHomeTours.asStateFlow()
 
     private val _searchText = MutableStateFlow("")
     val searchText = _searchText.asStateFlow()
@@ -73,6 +72,17 @@ class HomeViewModel(
 
     private val _selectedTours = MutableStateFlow(mutableListOf<TourInfo>())
     val selectedTours = _selectedTours.asStateFlow()
+
+    fun clear() {
+        homeOneDayStartTourInfo = null
+        homeOneDayTourList.clear()
+
+        _homeTours.value = emptyList()
+        _oneDayHomeTours.value = mutableListOf()
+        _searchText.value = ""
+        _tours.value = mutableListOf()
+        _selectedTours.value = mutableListOf()
+    }
 
     fun onSearchTextChange(text: String) {
         _searchText.value = text
@@ -120,10 +130,22 @@ class HomeViewModel(
         _homeTours.value = updatedTours
     }
 
+    fun addOneDayItemHomeTourList(tourInfo: TourInfo) {
+        val updatedTours = _oneDayHomeTours.value
+        updatedTours.add(tourInfo)
+        _oneDayHomeTours.value = updatedTours
+    }
+
     fun removeItemHomeTourList(position: Int, tourInfo: TourInfo) {
         val updatedTours = _homeTours.value
         updatedTours.forEach { it.removeAll { element -> element == tourInfo } }
         _homeTours.value = updatedTours
+    }
+
+    fun removeOneDayItemHomeTourList(tourInfo: TourInfo) {
+        val updatedTours = _oneDayHomeTours.value
+        updatedTours.removeAll { element -> element == tourInfo }
+        _oneDayHomeTours.value = updatedTours
     }
 
 
@@ -139,7 +161,8 @@ class HomeViewModel(
     fun getTour() = intent {
         withContext(Dispatchers.Default) {
             if (_tours.value.isEmpty()) {
-                val tours = kotripApi.getTour(cityInfo?.areaId ?: 0).toTourInfoList().toMutableList()
+                val tours =
+                    kotripApi.getTour(cityInfo?.areaId ?: 0).toTourInfoList().toMutableList()
                 _tours.value = tours
 //            reduce { state.copy(tours = tours) }
                 reduce { state.copy(status = UiState.Success) }
@@ -160,6 +183,26 @@ class HomeViewModel(
             reduce { state.copy(status = UiState.Loading) }
             val response =
                 kotripAuthApi.postOptimalRoute(
+                    "$BEARER_PREFIX ${
+                        dataStoreImpl.getAccessToken().first().toString()
+                    }", GenerateScheduleRequestDto(title, areaId, optimalRoutes)
+                )
+            when (response.code) {
+                200 -> postSideEffect(HomeSideEffect.GenerateOptimal(response.data.uuid))
+                else -> postSideEffect(HomeSideEffect.Toast(response.message))
+            }
+        }
+    }
+
+    fun setOptimalRouteDay(
+        title: String,
+        areaId: Int,
+        optimalRoutes: List<KotripRequestDto>,
+    ) = intent {
+        viewModelScope.launch {
+            reduce { state.copy(status = UiState.Loading) }
+            val response =
+                kotripAuthApi.postOptimalRouteDay(
                     "$BEARER_PREFIX ${
                         dataStoreImpl.getAccessToken().first().toString()
                     }", GenerateScheduleRequestDto(title, areaId, optimalRoutes)

@@ -38,7 +38,7 @@ fun KotripTourRow(
     Row {
         if (tourPosition == 0) {
             Text(
-                text = "$index 일차",
+                text = if (index == -1) "출발지" else if (index == -2) "당일치기" else "$index 일차",
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(horizontal = 5.dp)
             )

@@ -16,6 +16,7 @@ import org.orbitmvi.orbit.syntax.simple.intent
 import org.orbitmvi.orbit.syntax.simple.postSideEffect
 import org.orbitmvi.orbit.syntax.simple.reduce
 import org.orbitmvi.orbit.viewmodel.container
+import timber.log.Timber
 
 class HistoryViewModel(
     private val kotripAuthApi: KotripAuthApi,
@@ -26,17 +27,20 @@ class HistoryViewModel(
     init {
         intent {
             viewModelScope.launch {
-                val histories = kotripAuthApi.getHistory(
-                    "${Constants.BEARER_PREFIX} ${
-                        dataStoreImpl.getAccessToken().first().toString()
-                    }"
-                )
-                Log.e("aaa", "histories : ${histories}")
-                reduce {
-                    state.copy(
-                        state = UiState.Success,
-                        histories = histories.data.history
+                try {
+                    val histories = kotripAuthApi.getHistory(
+                        "${Constants.BEARER_PREFIX} ${
+                            dataStoreImpl.getAccessToken().first().toString()
+                        }"
                     )
+                    reduce {
+                        state.copy(
+                            state = UiState.Success,
+                            histories = histories.data.history
+                        )
+                    }
+                } catch (e: Exception) {
+
                 }
             }
         }

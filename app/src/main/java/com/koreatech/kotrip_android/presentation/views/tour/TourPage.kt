@@ -51,15 +51,18 @@ fun TourPage(
     state: HomeState,
     homeTours: List<List<TourInfo>>,
     oneDayStartTourInfo: TourInfo?,
+    dayTours: List<TourInfo?> = emptyList(),
     rememberTours: List<TourInfo>,
     tours: List<TourInfo>,
     modifier: Modifier = Modifier,
     onClick: (tourInfo: TourInfo) -> Unit,
     onClickTour: (List<TourInfo>) -> Unit,
 ) {
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .background(Color.White)) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+    ) {
 
         LazyColumn(
             modifier = Modifier
@@ -101,17 +104,21 @@ fun TourPage(
                 ) {
                     if (oneDayStartTourInfo != null) {
                         item {
-                            KotripTourRow(tourInfo = oneDayStartTourInfo)
+                            KotripTourRow(tourInfo = oneDayStartTourInfo, index = -1)
                         }
+                    }
+                    itemsIndexed(dayTours) { tourPosition, tour ->
+                        KotripTourRow(index = -2, tourPosition = tourPosition, tourInfo = tour!!)
                     }
                     homeTours.forEachIndexed { index, tourInfos ->
                         itemsIndexed(tourInfos) { tourPosition, tour ->
-                            KotripTourRow(index = index + 1, tourPosition = tourPosition, tourInfo = tour)
+                            KotripTourRow(
+                                index = index + 1,
+                                tourPosition = tourPosition,
+                                tourInfo = tour
+                            )
                         }
                     }
-//                    items(rememberTours) { it ->
-//                        KotripTourRow(tourInfo = it)
-//                    }
                 }
                 Spacer(modifier = Modifier.height(10.dp))
             }

@@ -110,6 +110,7 @@ fun TourCard(
     }
 }
 
+
 @Preview
 @Composable
 fun TourCardPreview() {

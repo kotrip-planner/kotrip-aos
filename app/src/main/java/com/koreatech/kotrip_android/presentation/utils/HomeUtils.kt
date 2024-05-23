@@ -7,7 +7,6 @@ import com.koreatech.kotrip_android.model.home.TourInfo
 import java.time.LocalDate
 
 
-
 fun List<TourInfo?>.toKotripRequestDto(date: String, position: Int) =
     KotripRequestDto(
         date = date,
@@ -26,7 +25,7 @@ fun TourInfo?.toNodeRequestDto(position: Int) =
 
 fun getOptimalRouteRequestDto(
     dates: List<LocalDate?>?,
-    tours: List<List<TourInfo?>>
+    tours: List<List<TourInfo?>>,
 ): List<KotripRequestDto> {
     val newList = mutableListOf<KotripRequestDto>()
     repeat(dates?.size ?: 0) {
@@ -35,5 +34,17 @@ fun getOptimalRouteRequestDto(
             tours[it].toKotripRequestDto(date, it + 1)
         )
     }
+    return newList
+}
+
+fun getOptimalDayRouteRequestDto(
+    dates: LocalDate?,
+    tours: List<TourInfo?>,
+): List<KotripRequestDto> {
+    val newList = mutableListOf<KotripRequestDto>()
+    val date = dates?.toString() ?: ""
+    newList.add(
+        tours.toKotripRequestDto(date, 1)
+    )
     return newList
 }

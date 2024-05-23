@@ -57,7 +57,7 @@ fun TourHistoryRow(
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = history.title,
+                text = "${history.city} 여행",
                 fontSize = 14.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -65,7 +65,7 @@ fun TourHistoryRow(
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "${history.startDate} ~ ${history.endDate}",
+                text = if (history.startDate == history.endDate) history.startDate else "${history.startDate} ~ ${history.endDate}",
                 fontSize = 14.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -82,6 +82,7 @@ fun TourHistoryRowPreview() {
         title = "제목",
         HistoryDataResponseDto(
             uuid = "",
+            city ="서울",
             title = "서울 여행",
             imageUrl = "",
             startDate = "2024.05.06",

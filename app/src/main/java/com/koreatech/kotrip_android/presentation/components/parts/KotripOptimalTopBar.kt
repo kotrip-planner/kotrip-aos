@@ -1,6 +1,7 @@
 package com.koreatech.kotrip_android.presentation.components.parts
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,6 +35,7 @@ fun KotripOptimalTopBar(
     cityTitle: String,
     scheduleContent: String,
     modifier: Modifier = Modifier,
+    onHomeClick: () -> Unit
 ) {
     Column(
         modifier = modifier
@@ -52,12 +54,13 @@ fun KotripOptimalTopBar(
                 modifier = Modifier.align(Alignment.CenterVertically)
             )
             Image(
-                painter = painterResource(id = R.drawable.three_line),
+                painter = painterResource(id = R.drawable.ic_home),
                 contentDescription = null,
                 modifier = Modifier
                     .padding(start = 5.dp)
                     .size(30.dp)
                     .align(Alignment.CenterVertically)
+                    .clickable(onClick = onHomeClick)
             )
         }
 

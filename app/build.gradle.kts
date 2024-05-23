@@ -149,10 +149,14 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.0.0")
 
     // glide
-    implementation ("com.github.bumptech.glide:glide:4.16.0")
+    implementation("com.github.bumptech.glide:glide:4.16.0")
 
     implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
     implementation("com.google.firebase:firebase-analytics")
+
+    //  tablayout
+    implementation("com.google.accompanist:accompanist-pager:0.20.1")
+    implementation("com.google.accompanist:accompanist-pager-indicators:0.20.1")
 }
 
 fun getPropertyKey(propertyKey: String): String {

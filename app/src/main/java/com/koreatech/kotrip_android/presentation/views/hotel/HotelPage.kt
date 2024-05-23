@@ -9,8 +9,11 @@ import android.graphics.Rect
 import android.graphics.RectF
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,6 +21,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
@@ -38,6 +43,7 @@ import com.bumptech.glide.Glide
 import com.koreatech.kotrip_android.R
 import com.koreatech.kotrip_android.data.model.response.HotelResponseDto
 import com.koreatech.kotrip_android.data.model.response.OptimalToursResponseDto
+import com.koreatech.kotrip_android.presentation.common.UiState
 import com.koreatech.kotrip_android.presentation.components.HotelRow
 import com.koreatech.kotrip_android.presentation.components.organisms.HotelDetailDialog
 import com.koreatech.kotrip_android.presentation.theme.MarkerBlue
@@ -73,12 +79,13 @@ import java.lang.Math.sqrt
 @Composable
 fun HotelPage(
     context: Context,
+    state: HotelState,
     position: Int,
     firstRoutes: List<OptimalToursResponseDto>,
     secondRoutes: List<OptimalToursResponseDto>,
     paths: List<List<LatLng>>,
     hotels: List<HotelResponseDto>,
-    hotelImageBitmaps: List<Bitmap>,
+    hotelImageBitmaps: List<Bitmap?>,
     modifier: Modifier = Modifier,
     onAddClick: (hotel: HotelResponseDto, position: Int) -> Unit,
 ) {
@@ -104,20 +111,6 @@ fun HotelPage(
         mutableStateOf(false)
     }
 
-//    val hotelImageBitmaps = mutableListOf<Bitmap>()
-//    runBlocking {
-//        hotels.forEach {
-//            hotelImageBitmaps.add(createCircleBitmapFromUrl(it.imageUrl1, context)!!)
-//        }
-//    }
-
-//    val coroutineScope = rememberCoroutineScope()
-//    val hotelImageBitmaps = coroutineScope.async {
-//        loadHotelImageBitmaps(hotels, context)
-//    }.await()
-
-
-
     HotelDetailDialog(
         context = context,
         hotelInfo = hotelDetailInfo,
@@ -128,6 +121,17 @@ fun HotelPage(
     )
 
     Column {
+        if (state.status == UiState.Loading) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                CircularProgressIndicator()
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(text = "호텔 찾는중...", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            }
+        }
         NaverMap(
             cameraPositionState = cameraPositionState,
             uiSettings = MapUiSettings(
@@ -180,7 +184,7 @@ fun HotelPage(
                         )
                     ),
                 )
-                if(paths[position].isNotEmpty()) {
+                if (paths[position].isNotEmpty()) {
                     PathOverlay(
                         coords = paths[position],
                         width = 4.dp,
@@ -204,7 +208,7 @@ fun HotelPage(
                         )
                     ),
                 )
-                if (paths[position+1].isNotEmpty()){
+                if (paths[position + 1].isNotEmpty()) {
                     PathOverlay(
                         coords = paths[position + 1],
                         width = 2.dp,

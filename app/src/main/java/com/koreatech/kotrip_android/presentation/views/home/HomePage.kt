@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieClipSpec
 import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieAnimatable
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.koreatech.kotrip_android.R
@@ -63,6 +64,7 @@ import com.naver.maps.map.compose.MarkerState
 import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.rememberCameraPositionState
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.time.LocalDate
 
 @OptIn(ExperimentalNaverMapApi::class, ExperimentalMaterial3Api::class)
@@ -88,6 +90,7 @@ fun HomePage(
     onCreateTour: (title: String) -> Unit,
     onBackPressed: () -> Unit,
     onTopBarButtonClick: () -> Unit,
+    onHomeClick: () -> Unit,
 ) {
     val city = LatLng(cityInfo.mapY - 0.3, cityInfo.mapX)
     val cameraPositionState: CameraPositionState = rememberCameraPositionState {
@@ -110,11 +113,6 @@ fun HomePage(
 
     var bottomSheetVisible by remember {
         mutableStateOf(true)
-    }
-    BackHandler(enabled = true) {
-        coroutineScope.launch {
-            onBackPressed()
-        }
     }
 
     KotripOptimalDialog(
@@ -140,7 +138,8 @@ fun HomePage(
                     lottieAnimatable.animate(
                         composition = composition,
                         clipSpec = LottieClipSpec.Frame(0, 1200),
-                        initialProgress = 0f
+                        initialProgress = 0f,
+                        iterations = LottieConstants.IterateForever
                     )
                 }
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -164,13 +163,15 @@ fun HomePage(
                 scheduleContent = startDate,
 //                onClick = onCreateTour,
                 onClick = onTopBarButtonClick,
+                onHomeClick = onHomeClick
             )
         } else {
             KotripTopBar(
                 cityTitle = "${cityInfo.title} 여행",
                 scheduleContent = "$startDate ~ $endDate",
 //                onClick = onCreateTour
-                onClick = onTopBarButtonClick
+                onClick = onTopBarButtonClick,
+                onHomeClick = onHomeClick
             )
         }
 

@@ -1,6 +1,7 @@
 package com.koreatech.kotrip_android.presentation.components.parts
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,6 +36,7 @@ fun KotripTopBar(
     scheduleContent: String,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
+    onHomeClick: () -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -53,12 +55,13 @@ fun KotripTopBar(
                 modifier = Modifier.align(Alignment.CenterVertically)
             )
             Image(
-                painter = painterResource(id = R.drawable.three_line),
+                painter = painterResource(id = R.drawable.ic_home),
                 contentDescription = null,
                 modifier = Modifier
                     .padding(start = 5.dp)
                     .size(30.dp)
                     .align(Alignment.CenterVertically)
+                    .clickable(onClick = onHomeClick)
             )
 
             Box(contentAlignment = Alignment.CenterEnd, modifier = Modifier.fillMaxWidth()) {
@@ -86,7 +89,9 @@ fun TopBarPreview() {
     Box(modifier = Modifier.fillMaxSize()) {
         KotripTopBar(
             cityTitle = "부산 여행",
-            scheduleContent = "2024.02.22(목) ~ 2024.02.25(일)"
-        ) {}
+            scheduleContent = "2024.02.22(목) ~ 2024.02.25(일)",
+            onClick = {},
+            onHomeClick = {}
+        )
     }
 }

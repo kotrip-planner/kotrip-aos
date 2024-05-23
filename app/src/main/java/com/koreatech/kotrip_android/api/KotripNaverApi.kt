@@ -16,4 +16,13 @@ interface KotripNaverApi {
         @Query("goal") goal: String,
         @Query("waypoints") waypoints: String,
     ): NaverDriving5ResponseDto
+
+    @GET("/map-direction-15/v1/driving")
+    suspend fun getDriving15(
+        @Header(NAVER_ID_PREFIX) clientId: String,
+        @Header(NAVER_SECRET_PREFIX) clientSecret: String,
+        @Query("start") start: String,
+        @Query("goal") goal: String,
+        @Query("waypoints") waypoints: String,
+    ): NaverDriving5ResponseDto
 }

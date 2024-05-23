@@ -30,8 +30,10 @@ fun NavGraphBuilder.hotelComposable(navController: NavController) {
         val context = LocalContext.current
         val viewModel = getActivityComposeViewModel<OptimalViewModel>()
         val hotelViewModel = getComposeViewModel<HotelViewModel>()
-        val state by viewModel.collectAsState()
+        val state by hotelViewModel.collectAsState()
         val coroutineScope = rememberCoroutineScope()
+
+        Timber.e("aaa hotel state :${state}")
 
         val hotels = hotelViewModel.hotels.collectAsStateWithLifecycle()
         val selectedHotels = viewModel.hotels.collectAsStateWithLifecycle()
@@ -58,6 +60,7 @@ fun NavGraphBuilder.hotelComposable(navController: NavController) {
 
         HotelPage(
             context = context,
+            state = state,
             hotels = hotels.value,
             hotelImageBitmaps = hotelImages.value,
             position = position,

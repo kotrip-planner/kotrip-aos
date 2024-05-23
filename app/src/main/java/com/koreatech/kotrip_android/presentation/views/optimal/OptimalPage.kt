@@ -97,7 +97,7 @@ fun OptimalPage(
     hotels: List<HotelResponseDto?>,
     modifier: Modifier = Modifier,
     onLoadHotel: (x: Double, y: Double, bx: Double, by: Double, pos: Int) -> Unit,
-    onBackPressed: () -> Unit,
+    onHomeClick: () -> Unit
 ) {
     val cameraPositionState: CameraPositionState = rememberCameraPositionState {}
     val context = LocalContext.current
@@ -144,22 +144,26 @@ fun OptimalPage(
         }
     }
 
-
-    BackHandler(enabled = true) {
-        coroutineScope.launch {
-            onBackPressed()
-        }
-    }
-
     if (state == UiState.Loading) {
         Box(modifier = Modifier.fillMaxSize()) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         }
     }
-    Column {
+    Column(
+        modifier = Modifier.background(Color.White)
+    ) {
         KotripOptimalTopBar(
             cityTitle = "$city 여행",
-            scheduleContent = "${routes[0].date} ~ ${routes[routes.size - 1].date}"
+            scheduleContent = if (routes.isNotEmpty()) {
+                if (routes.size == 1) {
+                    routes[0].date
+                } else {
+                    "${routes[0].date} ~ ${routes[routes.size - 1].date}"
+                }
+            } else {
+                ""
+            },
+            onHomeClick = onHomeClick
         )
         BottomSheetScaffold(
             sheetContainerColor = Color.White,
@@ -474,7 +478,7 @@ fun OptimalPagePreview() {
         routes = listOf(),
         paths = listOf(),
         hotels = emptyList(),
-        onBackPressed = {},
-        onLoadHotel = { _, _, _, _, _ -> }
+        onLoadHotel = { _, _, _, _, _ -> },
+        onHomeClick = {}
     )
 }

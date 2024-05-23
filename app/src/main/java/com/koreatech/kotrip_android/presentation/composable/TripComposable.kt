@@ -19,6 +19,7 @@ import com.koreatech.kotrip_android.presentation.views.trip.TripSideEffect
 import com.koreatech.kotrip_android.presentation.views.trip.TripViewModel
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
+import timber.log.Timber
 
 
 fun NavGraphBuilder.cityComposable(
@@ -77,10 +78,6 @@ fun NavGraphBuilder.scheduleComposable(navController: NavController) {
             when (it) {
                 is TripSideEffect.CompletedSchedule -> {
                     homeViewModel.setData(it.cityInfo, it.tourDate)
-//                    navController.currentBackStackEntry?.savedStateHandle?.apply {
-//                        set(Screen.cityInfo, it.cityInfo)
-//                        set(Screen.tourDate, it.tourDate)
-//                    }
                     navController.navigate(route = Screen.Home.createRoute(it.isOneDay)) {
                         popUpTo(navController.graph.id) {
                             inclusive = true
