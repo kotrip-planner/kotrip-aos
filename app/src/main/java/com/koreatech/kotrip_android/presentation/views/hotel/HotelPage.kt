@@ -7,6 +7,7 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.Rect
 import android.graphics.RectF
+import android.view.View
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -38,11 +39,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.koreatech.kotrip_android.R
 import com.koreatech.kotrip_android.data.model.response.HotelResponseDto
 import com.koreatech.kotrip_android.data.model.response.OptimalToursResponseDto
+import com.koreatech.kotrip_android.presentation.CustomMarker
 import com.koreatech.kotrip_android.presentation.common.UiState
 import com.koreatech.kotrip_android.presentation.components.HotelRow
 import com.koreatech.kotrip_android.presentation.components.organisms.HotelDetailDialog
@@ -120,7 +123,9 @@ fun HotelPage(
         }
     )
 
-    Column {
+    Column(
+        modifier = Modifier.background(Color.White)
+    ) {
         if (state.status == UiState.Loading) {
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -155,6 +160,15 @@ fun HotelPage(
                 outlineWidth = 1.dp,
                 outlineColor = Orange_FFCD4C
             )
+            /**
+             * 테스트 중~ start
+             */
+//            hotels.forEach {
+//                CustomMarkerCompose(context = context, imageUrl = it.imageUrl1)
+//            }
+            /**
+             * 테스트 중~ end
+             */
             hotelImageBitmaps.forEachIndexed { index, bitmap ->
                 val markerPosition = LatLng(hotels[index].latitude, hotels[index].longitude)
                 Marker(
@@ -336,3 +350,15 @@ suspend fun createCircleBitmapFromUrl(url: String, context: Context): Bitmap? = 
     }
 }
 
+@Composable
+fun CustomMarkerCompose(
+    context: Context,
+    imageUrl: String
+) {
+    AndroidView(factory = {
+        CustomMarker(context = context, imageUrl = imageUrl).apply {
+        }.also {
+            Timber.e("aaa view : $it")
+        }
+    })
+}

@@ -6,7 +6,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -31,24 +30,20 @@ import com.koreatech.kotrip_android.presentation.views.home.HomeSideEffect
 import com.koreatech.kotrip_android.presentation.views.home.HomeViewModel
 import com.koreatech.kotrip_android.presentation.views.optimal.OptimalViewModel
 import com.koreatech.kotrip_android.presentation.views.tour.TourPage
-import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
-import timber.log.Timber
 
 fun NavGraphBuilder.homeComposable(navController: NavController) {
     composable(
         route = Screen.Home.route,
         arguments = Screen.Home.navArgument
     ) { backEntry ->
-        var originBackPressedTime: Long = System.currentTimeMillis()
         val context = LocalContext.current
         val focusManager = LocalFocusManager.current
         val viewModel = getActivityComposeViewModel<HomeViewModel>()
         val optimalViewModel = getActivityComposeViewModel<OptimalViewModel>()
         val state by viewModel.collectAsState()
         val isOneDay = backEntry.arguments?.getBoolean(Screen.isOneDay) ?: false
-        val scope = rememberCoroutineScope()
 
         val dateList = if (!isOneDay) {
             val startDate = viewModel.tourDate?.start.toString()

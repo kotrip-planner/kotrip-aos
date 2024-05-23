@@ -85,7 +85,7 @@ fun <T> LazyListScope.setUpTwoGrip(
     }
 
     rowData.forEachIndexed { index, column ->
-        item {
+        item() {
             row(
                 column.getOrNull(0),
                 column.getOrNull(1),
