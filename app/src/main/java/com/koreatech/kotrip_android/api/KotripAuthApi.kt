@@ -3,13 +3,13 @@ package com.koreatech.kotrip_android.api
 import com.google.gson.annotations.SerializedName
 import com.koreatech.kotrip_android.Constants.AUTHORIZATION_PREFIX
 import com.koreatech.kotrip_android.base.BaseResponse
+import com.koreatech.kotrip_android.data.model.request.home.DayGenerateScheduleRequestDto
 import com.koreatech.kotrip_android.data.model.request.home.GenerateScheduleRequestDto
 import com.koreatech.kotrip_android.data.model.response.HistoryResponseDto
 import com.koreatech.kotrip_android.data.model.response.HotelResponseDto
 import com.koreatech.kotrip_android.data.model.response.UUIDResponseDto
 import com.koreatech.kotrip_android.data.model.response.OptimalRouteResponseDto
 import retrofit2.http.Body
-import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
@@ -18,9 +18,21 @@ import retrofit2.http.Query
 interface KotripAuthApi {
     /**
      * 최적의 경로 일정 저장
+     * use algorithm : TSP
+     */
+    @POST("api/schedules")
+    suspend fun postTSPOptimalRoute(
+        @Header(AUTHORIZATION_PREFIX) token: String,
+        @Body generateScheduleRequestDto: GenerateScheduleRequestDto,
+    ): BaseResponse<UUIDResponseDto>
+
+
+    /**
+     * 최적의 경로 일정 저장
+     * TSP + Greedy
      */
     @POST("api/schedule")
-    suspend fun postOptimalRoute(
+    suspend fun postOptimalRoutes(
         @Header(AUTHORIZATION_PREFIX) token: String,
         @Body generateScheduleRequestDto: GenerateScheduleRequestDto,
     ): BaseResponse<UUIDResponseDto>
@@ -31,7 +43,7 @@ interface KotripAuthApi {
     @POST("api/day")
     suspend fun postOptimalRouteDay(
         @Header(AUTHORIZATION_PREFIX) token: String,
-        @Body generateScheduleRequestDto: GenerateScheduleRequestDto
+        @Body generateScheduleRequestDto: DayGenerateScheduleRequestDto,
     ): BaseResponse<UUIDResponseDto>
 
 
@@ -39,8 +51,7 @@ interface KotripAuthApi {
      * UUID 일정 불러오기
      */
     @POST("api/history")
-    suspend fun
-            getSchedule(
+    suspend fun getSchedule(
         @Header(AUTHORIZATION_PREFIX) token: String,
         @Body scheduleRequest: ScheduleRequest,
     ): BaseResponse<OptimalRouteResponseDto>

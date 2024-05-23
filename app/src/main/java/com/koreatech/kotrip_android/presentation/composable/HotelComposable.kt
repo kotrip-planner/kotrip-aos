@@ -39,6 +39,7 @@ fun NavGraphBuilder.hotelComposable(navController: NavController) {
         val selectedHotels = viewModel.hotels.collectAsStateWithLifecycle()
         val hotelImages = hotelViewModel.hotelImages.collectAsStateWithLifecycle()
 
+
         LaunchedEffect(key1 = Unit) {
             it.arguments?.let { arg ->
                 val x = arg.getString(Screen.x)

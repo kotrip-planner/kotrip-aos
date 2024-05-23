@@ -5,9 +5,12 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
 import android.graphics.Rect
 import android.graphics.RectF
 import android.view.View
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -27,7 +30,9 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -35,12 +40,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.bumptech.glide.Glide
 import com.koreatech.kotrip_android.R
 import com.koreatech.kotrip_android.data.model.response.HotelResponseDto
@@ -92,6 +101,8 @@ fun HotelPage(
     modifier: Modifier = Modifier,
     onAddClick: (hotel: HotelResponseDto, position: Int) -> Unit,
 ) {
+    val ctx = context as ComponentActivity
+
     val cameraPositionState: CameraPositionState = rememberCameraPositionState {}
     var selectedId by remember {
         mutableStateOf(-1)
@@ -163,12 +174,22 @@ fun HotelPage(
             /**
              * 테스트 중~ start
              */
-//            hotels.forEach {
-//                CustomMarkerCompose(context = context, imageUrl = it.imageUrl1)
+//            hotels.forEachIndexed { index, hotel ->
+//                val markerPosition = LatLng(hotels[index].latitude, hotels[index].longitude)
+//                Marker(
+//                    state = MarkerState(markerPosition),
+//                    icon = OverlayImage.fromResource(R.drawable.ic_marker_circle),
+//                    onClick = {
+//                        hotelDetailInfo = hotels[index]
+//                        hotelDetailVisible = true
+//                        true
+//                    }
+//                )
 //            }
             /**
              * 테스트 중~ end
              */
+
             hotelImageBitmaps.forEachIndexed { index, bitmap ->
                 val markerPosition = LatLng(hotels[index].latitude, hotels[index].longitude)
                 Marker(
@@ -176,7 +197,7 @@ fun HotelPage(
                     icon = if (bitmap != null) {
                         OverlayImage.fromBitmap(bitmap)
                     } else {
-                        OverlayImage.fromResource(R.drawable.ic_hotel)
+                        OverlayImage.fromResource(R.drawable.ic_marker_circle)
                     },
                     onClick = {
                         hotelDetailInfo = hotels[index]
@@ -312,53 +333,69 @@ suspend fun loadHotelImageBitmaps(hotels: List<HotelResponseDto>, context: Conte
     return hotelImageBitmaps
 }
 
-suspend fun createCircleBitmapFromUrl(url: String, context: Context): Bitmap? = withContext(
-    Dispatchers.Default
-) {
-    // Glide를 이용해 이미지를 비트맵으로 다운로드
+//suspend fun createCircleBitmapFromUrl(url: String, context: Context): Bitmap? = withContext(
+//    Dispatchers.Default
+//) {
+//    // Glide를 이용해 이미지를 비트맵으로 다운로드
+//    try {
+//        val originalBitmap = Glide.with(context)
+//            .asBitmap()
+//            .load(url)
+//            .submit()
+//            .get()
+//
+//        val outputBitmap = Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888)
+//        val canvas = Canvas(outputBitmap)
+//        val paint = Paint()
+//
+//        val rect = Rect(0, 0, 50, 50)
+//        val rectF = RectF(rect)
+//
+//        // 이미지를 원형으로 가공하기 위해 Path를 사용
+//        val path = Path().apply {
+//            addCircle(25f, 25f, 24f, Path.Direction.CCW)
+//        }
+//
+//        // 원형 클리핑 적용
+//        canvas.clipPath(path)
+//
+//        // 원형 모양에 맞게 이미지를 캔버스에 그림
+//        paint.isAntiAlias = true
+//        canvas.drawBitmap(originalBitmap, null, rectF, paint)
+//
+//        // 가공된 비트맵 반환
+//        outputBitmap
+//    } catch (e: Exception) {
+//        e.printStackTrace()
+//        null
+//    }
+//}
+
+suspend fun createCircleBitmapFromUrl(url: String, context: Context): Bitmap? = withContext(Dispatchers.IO) {
     try {
+        // Glide로 이미지를 비트맵으로 다운로드하면서 크기 조정
         val originalBitmap = Glide.with(context)
             .asBitmap()
             .load(url)
-            .submit()
+            .submit(50, 50) // 크기를 미리 지정하여 메모리 사용 최적화
             .get()
 
         val outputBitmap = Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(outputBitmap)
-        val paint = Paint()
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG) // 안티 앨리어싱 설정
 
-        val rect = Rect(0, 0, 50, 50)
-        val rectF = RectF(rect)
-
-        // 이미지를 원형으로 가공하기 위해 Path를 사용
-        val path = Path().apply {
-            addCircle(25f, 25f, 24f, Path.Direction.CCW)
-        }
+        val rectF = RectF(0f, 0f, 50f, 50f)
 
         // 원형 클리핑 적용
-        canvas.clipPath(path)
+        canvas.drawOval(rectF, paint)
 
         // 원형 모양에 맞게 이미지를 캔버스에 그림
-        paint.isAntiAlias = true
+        paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
         canvas.drawBitmap(originalBitmap, null, rectF, paint)
 
-        // 가공된 비트맵 반환
         outputBitmap
     } catch (e: Exception) {
         e.printStackTrace()
         null
     }
-}
-
-@Composable
-fun CustomMarkerCompose(
-    context: Context,
-    imageUrl: String
-) {
-    AndroidView(factory = {
-        CustomMarker(context = context, imageUrl = imageUrl).apply {
-        }.also {
-            Timber.e("aaa view : $it")
-        }
-    })
 }

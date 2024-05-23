@@ -8,7 +8,10 @@ import com.koreatech.kotrip_android.Constants
 import com.koreatech.kotrip_android.api.KotripAuthApi
 import com.koreatech.kotrip_android.data.DataStoreImpl
 import com.koreatech.kotrip_android.data.model.response.HotelResponseDto
+import com.koreatech.kotrip_android.presentation.CustomMarker
 import com.koreatech.kotrip_android.presentation.common.UiState
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
@@ -49,10 +52,15 @@ class HotelViewModel(
                 }.onSuccess {
                     val updatedHotels = it.data
                     _hotels.value = updatedHotels.toMutableList()
-                    it.data.map { createCircleBitmapFromUrl(it.imageUrl1, context) }.let {
-                        _hotelImages.value = it.toMutableList()
+                    val imageLoadJobs = it.data.map { hotelData ->
+                        async { createCircleBitmapFromUrl(hotelData.imageUrl1, context) }
                     }
+                    val loadedImages  = imageLoadJobs.awaitAll()
+                    _hotelImages.value = loadedImages.toMutableList()
                     reduce { state.copy(status = UiState.Success) }
+//                    it.data.map { createCircleBitmapFromUrl(it.imageUrl1, context) }.let {
+//                        _hotelImages.value = it.toMutableList()
+//                    }
                 }.onFailure {
                     it.message
                 }

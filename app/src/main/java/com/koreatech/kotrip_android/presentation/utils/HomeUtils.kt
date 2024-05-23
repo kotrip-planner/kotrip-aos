@@ -1,5 +1,7 @@
 package com.koreatech.kotrip_android.presentation.utils
 
+import com.koreatech.kotrip_android.data.model.request.home.DayKotripRequestDto
+import com.koreatech.kotrip_android.data.model.request.home.DayNodeRequestDto
 import com.koreatech.kotrip_android.data.model.request.home.KotripRequestDto
 import com.koreatech.kotrip_android.data.model.request.home.NodeRequestDto
 import com.koreatech.kotrip_android.data.model.request.home.GenerateScheduleRequestDto
@@ -23,6 +25,22 @@ fun TourInfo?.toNodeRequestDto(position: Int) =
         time = position
     )
 
+fun List<TourInfo?>.toDayKotripRequestDto(date: String, position: Int) =
+    DayKotripRequestDto(
+        date = date,
+        nodes = this.map { it.toDayNodeRequestDto(position) }
+    )
+
+fun TourInfo?.toDayNodeRequestDto(position: Int) =
+    DayNodeRequestDto(
+        id = this?.id ?: 0,
+        name = this?.title ?: "",
+        latitude = this?.latitude ?: 0.0,
+        longitude = this?.longitude ?: 0.0,
+        imageUrl = this?.imageUrl ?: "",
+        time = position
+    )
+
 fun getOptimalRouteRequestDto(
     dates: List<LocalDate?>?,
     tours: List<List<TourInfo?>>,
@@ -40,11 +58,11 @@ fun getOptimalRouteRequestDto(
 fun getOptimalDayRouteRequestDto(
     dates: LocalDate?,
     tours: List<TourInfo?>,
-): List<KotripRequestDto> {
-    val newList = mutableListOf<KotripRequestDto>()
+): List<DayKotripRequestDto> {
+    val newList = mutableListOf<DayKotripRequestDto>()
     val date = dates?.toString() ?: ""
     newList.add(
-        tours.toKotripRequestDto(date, 1)
+        tours.toDayKotripRequestDto(date, 1)
     )
     return newList
 }

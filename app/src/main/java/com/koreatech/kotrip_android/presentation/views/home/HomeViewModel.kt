@@ -8,6 +8,8 @@ import com.koreatech.kotrip_android.api.KotripAuthApi
 import com.koreatech.kotrip_android.api.ScheduleRequest
 import com.koreatech.kotrip_android.data.DataStoreImpl
 import com.koreatech.kotrip_android.data.mapper.toTourInfoList
+import com.koreatech.kotrip_android.data.model.request.home.DayGenerateScheduleRequestDto
+import com.koreatech.kotrip_android.data.model.request.home.DayKotripRequestDto
 import com.koreatech.kotrip_android.data.model.request.home.GenerateScheduleRequestDto
 import com.koreatech.kotrip_android.data.model.request.home.KotripRequestDto
 import com.koreatech.kotrip_android.model.home.TourInfo
@@ -182,7 +184,7 @@ class HomeViewModel(
         viewModelScope.launch {
             reduce { state.copy(status = UiState.Loading) }
             val response =
-                kotripAuthApi.postOptimalRoute(
+                kotripAuthApi.postOptimalRoutes(
                     "$BEARER_PREFIX ${
                         dataStoreImpl.getAccessToken().first().toString()
                     }", GenerateScheduleRequestDto(title, areaId, optimalRoutes)
@@ -197,7 +199,7 @@ class HomeViewModel(
     fun setOptimalRouteDay(
         title: String,
         areaId: Int,
-        optimalRoutes: List<KotripRequestDto>,
+        optimalRoutes: List<DayKotripRequestDto>,
     ) = intent {
         viewModelScope.launch {
             reduce { state.copy(status = UiState.Loading) }
@@ -205,7 +207,7 @@ class HomeViewModel(
                 kotripAuthApi.postOptimalRouteDay(
                     "$BEARER_PREFIX ${
                         dataStoreImpl.getAccessToken().first().toString()
-                    }", GenerateScheduleRequestDto(title, areaId, optimalRoutes)
+                    }", DayGenerateScheduleRequestDto(title, areaId, optimalRoutes)
                 )
             when (response.code) {
                 200 -> postSideEffect(HomeSideEffect.GenerateOptimal(response.data.uuid))

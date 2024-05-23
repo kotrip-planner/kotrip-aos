@@ -5,7 +5,6 @@ import android.util.AttributeSet
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.AbstractComposeView
-import androidx.constraintlayout.widget.ConstraintLayout
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 
@@ -13,7 +12,7 @@ class CustomMarker @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
-    private val imageUrl: String,
+    private val imageUrl: String
 ) : AbstractComposeView(context, attrs, defStyleAttr) {
     @Composable
     override fun Content() {
@@ -26,4 +25,11 @@ class CustomMarker @JvmOverloads constructor(
             )
         }
     }
+
+//    fun loadImage(url: String) {
+//        Timber.e("aaa 어디야 3")
+//        Glide.with(context)
+//            .load(url)
+//            .into(binding.ivMarker)
+//    }
 }
