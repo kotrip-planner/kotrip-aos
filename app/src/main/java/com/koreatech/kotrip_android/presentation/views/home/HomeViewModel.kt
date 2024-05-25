@@ -2,26 +2,35 @@ package com.koreatech.kotrip_android.presentation.views.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import androidx.paging.filter
 import com.koreatech.kotrip_android.Constants.BEARER_PREFIX
 import com.koreatech.kotrip_android.api.KotripApi
 import com.koreatech.kotrip_android.api.KotripAuthApi
 import com.koreatech.kotrip_android.api.ScheduleRequest
 import com.koreatech.kotrip_android.data.DataStoreImpl
-import com.koreatech.kotrip_android.data.mapper.toTourInfoList
+import com.koreatech.kotrip_android.data.mapper.toTourInfo
 import com.koreatech.kotrip_android.data.model.request.home.DayGenerateScheduleRequestDto
 import com.koreatech.kotrip_android.data.model.request.home.DayKotripRequestDto
 import com.koreatech.kotrip_android.data.model.request.home.GenerateScheduleRequestDto
 import com.koreatech.kotrip_android.data.model.request.home.KotripRequestDto
+import com.koreatech.kotrip_android.data.repository.TourRepositoryImpl
 import com.koreatech.kotrip_android.model.home.TourInfo
 import com.koreatech.kotrip_android.model.trip.CityInfo
 import com.koreatech.kotrip_android.model.trip.TourDate
 import com.koreatech.kotrip_android.presentation.common.UiState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -36,6 +45,7 @@ class HomeViewModel(
     private val kotripApi: KotripApi,
     private val kotripAuthApi: KotripAuthApi,
     private val dataStoreImpl: DataStoreImpl,
+    private val tourRepositoryImpl: TourRepositoryImpl,
 ) : ContainerHost<HomeState, HomeSideEffect>, ViewModel() {
     override val container: Container<HomeState, HomeSideEffect> = container(HomeState())
 
@@ -45,6 +55,9 @@ class HomeViewModel(
 
     var homeOneDayStartTourInfo: TourInfo? = null
     var homeOneDayTourList: MutableList<TourInfo> = mutableListOf()
+
+    private val _page = MutableStateFlow(0)
+    val page = _page.asStateFlow()
 
     private val _homeTours = MutableStateFlow(listOf(mutableListOf<TourInfo>()))
     val homeTours = _homeTours.asStateFlow()
@@ -72,6 +85,27 @@ class HomeViewModel(
             _tours.value
         )
 
+
+    private val _testTours: MutableStateFlow<PagingData<TourInfo>> =
+        MutableStateFlow(PagingData.empty())
+
+    fun getTestTours(): Flow<PagingData<TourInfo>> {
+        val toursFlow = tourRepositoryImpl.tours(cityInfo?.areaId ?: 0, 20).cachedIn(viewModelScope)
+
+        return searchText
+            .combine(toursFlow) { text, tours ->
+                if (text.isBlank()) {
+                    tours
+                } else {
+                    tours.filter { it.matchQuery(text) }
+                }
+            }
+    }
+    fun clearSearchText() {
+        _searchText.value = ""
+    }
+
+
     private val _selectedTours = MutableStateFlow(mutableListOf<TourInfo>())
     val selectedTours = _selectedTours.asStateFlow()
 
@@ -84,6 +118,7 @@ class HomeViewModel(
         _searchText.value = ""
         _tours.value = mutableListOf()
         _selectedTours.value = mutableListOf()
+        _page.value = 0
     }
 
     fun onSearchTextChange(text: String) {
@@ -160,16 +195,32 @@ class HomeViewModel(
     }
 
 
-    fun getTour() = intent {
+    fun getTour(pageNumber: Int) = intent {
         withContext(Dispatchers.Default) {
             if (_tours.value.isEmpty()) {
                 val tours =
-                    kotripApi.getTour(cityInfo?.areaId ?: 0).toTourInfoList().toMutableList()
-                _tours.value = tours
+                    kotripApi.getTour(
+                        cityInfo?.areaId ?: 0,
+                        pageNumber
+                    ).data.list.map { it.toTourInfo() }
+                _tours.value = tours.toMutableList()
+                _page.value = 0
 //            reduce { state.copy(tours = tours) }
                 reduce { state.copy(status = UiState.Success) }
             }
         }
+    }
+
+    fun extraGetTour(pageNumber: Int) = intent {
+        reduce { state.copy(status = UiState.Loading) }
+        _page.value = pageNumber
+        val tours =
+            kotripApi.getTour(cityInfo?.areaId ?: 0, pageNumber).data.list.map { it.toTourInfo() }
+        val updatedTours = _tours.value
+        updatedTours.addAll(tours)
+        _tours.value = updatedTours
+        delay(2000)
+        reduce { state.copy(status = UiState.Success) }
     }
 
     fun moveToOptimalPage() = intent {
@@ -184,8 +235,7 @@ class HomeViewModel(
         viewModelScope.launch {
             reduce { state.copy(status = UiState.Loading) }
             val response =
-                kotripAuthApi.postTSPOptimalRoute(
-//                kotripAuthApi.postOptimalRoutes(
+                kotripAuthApi.postOptimalRoutes(
                     "$BEARER_PREFIX ${
                         dataStoreImpl.getAccessToken().first().toString()
                     }", GenerateScheduleRequestDto(title, areaId, optimalRoutes)

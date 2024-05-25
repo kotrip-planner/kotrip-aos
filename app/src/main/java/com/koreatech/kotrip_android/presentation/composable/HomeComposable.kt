@@ -2,7 +2,6 @@ package com.koreatech.kotrip_android.presentation.composable
 
 import android.app.Activity
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -13,12 +12,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.koreatech.kotrip_android.di.getActivityComposeViewModel
 import com.koreatech.kotrip_android.model.home.TourInfo
 import com.koreatech.kotrip_android.model.trip.CityInfo
-import com.koreatech.kotrip_android.presentation.components.organisms.TourAddDialog
-import com.koreatech.kotrip_android.presentation.components.organisms.TourDayAddDialog
-import com.koreatech.kotrip_android.presentation.components.organisms.TourRemoveDialog
 import com.koreatech.kotrip_android.presentation.screen.Screen
 import com.koreatech.kotrip_android.presentation.utils.BackHandler
 import com.koreatech.kotrip_android.presentation.utils.getOptimalDayRouteRequestDto
@@ -211,40 +208,12 @@ fun NavGraphBuilder.tourComposable(navController: NavController) {
         val isOneDay = backEntry.arguments?.getBoolean(Screen.isOneDay) ?: false
         val day = backEntry.arguments?.getInt(Screen.day) ?: 0
 
-        val tours = viewModel.tours.collectAsStateWithLifecycle()
-        LaunchedEffect(key1 = Unit) {
-            if (tours.value.isEmpty()) {
-                viewModel.getTour()
-            }
-        }
-
-        val searchText by viewModel.searchText.collectAsStateWithLifecycle()
         val selectedTours = viewModel.selectedTours.collectAsStateWithLifecycle()
         val homeTours = viewModel.homeTours.collectAsStateWithLifecycle()
         val oneDayHomeTours = viewModel.oneDayHomeTours.collectAsStateWithLifecycle()
+        val tours = viewModel.getTestTours().collectAsLazyPagingItems()
 
-        var selectedId by remember {
-            mutableStateOf(-1)
-        }
-        var dialogVisible by remember {
-            mutableStateOf(false)
-        }
-        var dialogTourInfo by remember {
-            mutableStateOf<TourInfo?>(null)
-        }
-        var dialogRemoveVisible by remember {
-            mutableStateOf(false)
-        }
-        var dialogRemoveTourInfo by remember {
-            mutableStateOf<TourInfo?>(null)
-        }
-        var dialogDayVisible by remember {
-            mutableStateOf(false)
-        }
-        var dialogDayTourInfo by remember {
-            mutableStateOf<TourInfo?>(null)
-        }
-
+        viewModel.clearSearchText()
         viewModel.collectSideEffect {
             when (it) {
                 is HomeSideEffect.Toast -> showToast(context, it.message)
@@ -252,105 +221,20 @@ fun NavGraphBuilder.tourComposable(navController: NavController) {
             }
         }
 
-        TourDayAddDialog(
-            context = context,
-            tourInfo = dialogDayTourInfo,
-            visible = dialogDayVisible,
-            onDismissRequest = { dialogDayVisible = false },
-            onButtonClick = { it ->
-                if (selectedTours.value.contains(viewModel.homeOneDayStartTourInfo)) {
-                    viewModel.onRemoveTours(viewModel.homeOneDayStartTourInfo!!)
-                }
-                viewModel.onSelectedTours(it)
-                dialogDayVisible = false
-                viewModel.homeOneDayStartTourInfo = it
-            }
-        )
-
-        TourAddDialog(
-            context = context,
-            tourInfo = dialogTourInfo,
-            visible = dialogVisible,
-            onDismissRequest = { dialogVisible = false },
-            onButtonClick = {
-                viewModel.onSelectedTours(it)
-                dialogVisible = false
-                if (day == -1) {
-                    viewModel.addOneDayItemHomeTourList(it)
-                } else {
-                    viewModel.addItemHomeTourList(day, it)
-                }
-            }
-        )
-
-        TourRemoveDialog(
-            context = context,
-            tourInfo = dialogRemoveTourInfo,
-            visible = dialogRemoveVisible,
-            onDismissRequest = { dialogRemoveVisible = false },
-            onButtonClick = {
-                viewModel.onRemoveTours(it)
-                dialogRemoveVisible = false
-                if (day == -1) {
-                    viewModel.removeOneDayItemHomeTourList(it)
-                } else {
-                    viewModel.removeItemHomeTourList(day, it)
-                }
-            }
-        )
-
         TourPage(
+            viewModel= viewModel,
+            context = context,
             day = day + 1,
-            selectedId = selectedId,
-            onSelectedIdChanged = { tourInfo, id ->
-            },
+            tours = tours,
+            isOneDay = isOneDay,
             selectedTours = selectedTours.value,
-            searchText = searchText,
             homeTours = homeTours.value,
-            onSearchTextChanged = viewModel::onSearchTextChange,
             cityInfo = viewModel.cityInfo ?: CityInfo(),
             state = state,
             oneDayStartTourInfo = viewModel.homeOneDayStartTourInfo,
             dayTours = oneDayHomeTours.value,
-            rememberTours = if (isOneDay) viewModel.homeOneDayTourList else selectedTours.value,
-            tours = tours.value,
-            onClick = { tourInfo ->
-                if (isOneDay) {
-                    if (day == -2) {
-                        if (selectedTours.value.contains(tourInfo)) {
-                            viewModel.showToast("이미 선택된 관광지입니다.")
-                        } else {
-                            dialogDayTourInfo = tourInfo
-                            dialogDayVisible = true
-                        }
-                    } else {
-                        if (selectedTours.value.contains(tourInfo)) {
-                            if (tourInfo == viewModel.homeOneDayStartTourInfo) {
-                                viewModel.showToast("해당 관광지는 출발지입니다.")
-                            } else {
-                                dialogRemoveVisible = true
-                                dialogRemoveTourInfo = tourInfo
-                            }
-                        } else {
-                            dialogTourInfo = tourInfo
-                            dialogVisible = true
-                        }
-                    }
-                } else {
-                    if (selectedTours.value.contains(tourInfo)) {
-                        dialogRemoveVisible = true
-                        dialogRemoveTourInfo = tourInfo
-                    } else {
-                        dialogTourInfo = tourInfo
-                        dialogVisible = true
-                    }
-                }
-
-            },
-            onClickTour = { selectTours ->
-                if (selectTours.isEmpty()) {
-                } else {
-                }
+            onPop = {
+                navController.popBackStack()
             }
         )
     }
@@ -363,7 +247,7 @@ fun BackOnPressed() {
     var backPressedTime = 0L
 
     BackHandler(enabled = backPressedState) {
-        if(System.currentTimeMillis() - backPressedTime <= 2000L) {
+        if (System.currentTimeMillis() - backPressedTime <= 2000L) {
             // 앱 종료
             (context as Activity).finish()
         } else {

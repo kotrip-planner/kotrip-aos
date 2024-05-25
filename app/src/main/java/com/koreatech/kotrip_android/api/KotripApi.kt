@@ -5,6 +5,7 @@ import com.koreatech.kotrip_android.data.model.request.LoginRequestDto
 import com.koreatech.kotrip_android.data.model.request.RefreshRequestDto
 import com.koreatech.kotrip_android.data.model.response.AuthResponseDto
 import com.koreatech.kotrip_android.data.model.response.CityInfoResponseDto
+import com.koreatech.kotrip_android.data.model.response.TourBaseInfoResponseDto
 import com.koreatech.kotrip_android.data.model.response.TourInfoResponseDto
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -41,5 +42,6 @@ interface KotripApi {
     @GET("tour")
     suspend fun getTour(
         @Query("cityId") cityId: Int,
-    ): BaseResponse<List<TourInfoResponseDto>>
+        @Query("page") page: Int
+    ): BaseResponse<TourBaseInfoResponseDto>
 }

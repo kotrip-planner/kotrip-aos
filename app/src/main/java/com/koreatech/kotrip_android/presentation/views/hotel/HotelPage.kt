@@ -190,15 +190,11 @@ fun HotelPage(
              * 테스트 중~ end
              */
 
-            hotelImageBitmaps.forEachIndexed { index, bitmap ->
+            hotels.forEachIndexed { index, hotelResponseDto ->
                 val markerPosition = LatLng(hotels[index].latitude, hotels[index].longitude)
                 Marker(
                     state = MarkerState(markerPosition),
-                    icon = if (bitmap != null) {
-                        OverlayImage.fromBitmap(bitmap)
-                    } else {
-                        OverlayImage.fromResource(R.drawable.ic_marker_circle)
-                    },
+                    icon =OverlayImage.fromResource(R.drawable.location_pin),
                     onClick = {
                         hotelDetailInfo = hotels[index]
                         hotelDetailVisible = true
@@ -206,6 +202,23 @@ fun HotelPage(
                     }
                 )
             }
+//            hotelImageBitmaps.forEachIndexed { index, bitmap ->
+//                val markerPosition = LatLng(hotels[index].latitude, hotels[index].longitude)
+//                Marker(
+//                    state = MarkerState(markerPosition),
+//                    icon = if (bitmap != null) {
+////                        OverlayImage.fromBitmap(bitmap)
+//                        OverlayImage.fromResource(R.drawable.location_pin)
+//                    } else {
+//                        OverlayImage.fromResource(R.drawable.location_pin)
+//                    },
+//                    onClick = {
+//                        hotelDetailInfo = hotels[index]
+//                        hotelDetailVisible = true
+//                        true
+//                    }
+//                )
+//            }
             firstRoutes.forEachIndexed { index, tour ->
                 val tourPosition = LatLng(tour.latitude, tour.longitude)
                 Marker(

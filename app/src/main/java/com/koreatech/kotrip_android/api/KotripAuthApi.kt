@@ -18,6 +18,7 @@ import retrofit2.http.Query
 
 interface KotripAuthApi {
     /**
+     * @deprecated
      * 최적의 경로 일정 저장
      * use algorithm : TSP
      */

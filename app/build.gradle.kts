@@ -157,6 +157,10 @@ dependencies {
     //  tablayout
     implementation("com.google.accompanist:accompanist-pager:0.20.1")
     implementation("com.google.accompanist:accompanist-pager-indicators:0.20.1")
+
+    // paging
+    implementation ("androidx.paging:paging-runtime:3.3.0")
+    implementation ("androidx.paging:paging-compose:1.0.0-alpha16")
 }
 
 fun getPropertyKey(propertyKey: String): String {

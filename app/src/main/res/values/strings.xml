@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Kotrip-Android</string>
+    <string name="app_name">도시탐방</string>
     <string name="kotrip">Kotrip</string>
 
     <!-- 로그인 -->

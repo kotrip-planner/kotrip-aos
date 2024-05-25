@@ -27,6 +27,8 @@ data class NodeRequestDto(
     val latitude: Double,
     @SerializedName("longitude")
     val longitude: Double,
+    @SerializedName("imageUrl")
+    val imageUrl: String,
     @SerializedName("time")
     val time: Int
 )

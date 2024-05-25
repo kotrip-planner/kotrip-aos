@@ -22,6 +22,7 @@ fun TourInfo?.toNodeRequestDto(position: Int) =
         name = this?.title ?: "",
         latitude = this?.latitude ?: 0.0,
         longitude = this?.longitude ?: 0.0,
+        imageUrl = this?.imageUrl ?: "",
         time = position
     )
 

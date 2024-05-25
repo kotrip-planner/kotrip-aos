@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.koreatech.kotrip_android.api.RetrofitManager
 import com.koreatech.kotrip_android.data.DataStoreImpl
+import com.koreatech.kotrip_android.data.repository.TourRepositoryImpl
 import com.koreatech.kotrip_android.kakao.KakaoService
 import com.koreatech.kotrip_android.presentation.MainActivity
 import com.koreatech.kotrip_android.presentation.views.entry.EntryViewModel
@@ -75,6 +76,9 @@ val kotripModule = module {
     single {
         DataStoreImpl(androidContext())
     }
+    single {
+        TourRepositoryImpl(get())
+    }
     viewModel {
         SplashViewModel(
             kotripApi = get(),
@@ -95,7 +99,7 @@ val kotripModule = module {
         TripViewModel(get())
     }
     viewModel {
-        HomeViewModel(get(), get(), get())
+        HomeViewModel(get(), get(), get(), get( ))
     }
     viewModel {
         OptimalViewModel(get())
