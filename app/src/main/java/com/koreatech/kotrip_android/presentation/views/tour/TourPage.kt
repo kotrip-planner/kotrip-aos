@@ -59,6 +59,7 @@ import com.koreatech.kotrip_android.presentation.components.organisms.TourDayAdd
 import com.koreatech.kotrip_android.presentation.components.organisms.TourRemoveDialog
 import com.koreatech.kotrip_android.presentation.components.parts.KotripTourRow
 import com.koreatech.kotrip_android.presentation.theme.Orange_FF9800
+import com.koreatech.kotrip_android.presentation.utils.showToast
 import com.koreatech.kotrip_android.presentation.views.home.HomeState
 import com.koreatech.kotrip_android.presentation.views.home.HomeViewModel
 
@@ -276,8 +277,12 @@ fun TourPage(
                                         dialogRemoveVisible = true
                                         dialogRemoveTourInfo = tours[it]
                                     } else {
-                                        dialogTourInfo = tours[it]
-                                        dialogVisible = true
+                                        if (homeTours[day - 1].size > 4) {
+                                            showToast(context, "일차 최대 관광지를 넘었습니다.")
+                                        } else {
+                                            dialogTourInfo = tours[it]
+                                            dialogVisible = true
+                                        }
                                     }
                                 }
                             }

@@ -35,6 +35,9 @@ class HotelViewModel(
     private val _hotelImages = MutableStateFlow<MutableList<Bitmap?>>(mutableListOf())
     val hotelImages = _hotelImages.asStateFlow()
 
+    private val _flag = MutableStateFlow(false)
+    val flag = _flag.asStateFlow()
+
     suspend fun getHotel(x: Double, y: Double, bx: Double, by: Double, context: Context) {
         intent {
             viewModelScope.launch {
@@ -50,17 +53,9 @@ class HotelViewModel(
                         byLatitude = by
                     )
                 }.onSuccess {
-                    val updatedHotels = it.data
+                    val updatedHotels = it.data.hotelSearchList
                     _hotels.value = updatedHotels.toMutableList()
-                    val imageLoadJobs = it.data.map { hotelData ->
-                        async { createCircleBitmapFromUrl(hotelData.imageUrl1, context) }
-                    }
-                    val loadedImages  = imageLoadJobs.awaitAll()
-                    _hotelImages.value = loadedImages.toMutableList()
                     reduce { state.copy(status = UiState.Success) }
-//                    it.data.map { createCircleBitmapFromUrl(it.imageUrl1, context) }.let {
-//                        _hotelImages.value = it.toMutableList()
-//                    }
                 }.onFailure {
                     it.message
                 }

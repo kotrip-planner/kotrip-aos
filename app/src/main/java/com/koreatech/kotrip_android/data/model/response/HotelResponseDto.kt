@@ -2,6 +2,12 @@ package com.koreatech.kotrip_android.data.model.response
 
 import com.google.gson.annotations.SerializedName
 
+data class HotelBasicResponseDto(
+    @SerializedName("flag")
+    val flag: String,
+    @SerializedName("hotelSearchList")
+    val hotelSearchList: List<HotelResponseDto>
+)
 data class HotelResponseDto(
     @SerializedName("addr1")
     val addr1: String,

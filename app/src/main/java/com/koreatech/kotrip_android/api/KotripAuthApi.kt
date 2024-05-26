@@ -6,6 +6,7 @@ import com.koreatech.kotrip_android.base.BaseResponse
 import com.koreatech.kotrip_android.data.model.request.home.DayGenerateScheduleRequestDto
 import com.koreatech.kotrip_android.data.model.request.home.GenerateScheduleRequestDto
 import com.koreatech.kotrip_android.data.model.response.HistoryResponseDto
+import com.koreatech.kotrip_android.data.model.response.HotelBasicResponseDto
 import com.koreatech.kotrip_android.data.model.response.HotelResponseDto
 import com.koreatech.kotrip_android.data.model.response.UUIDResponseDto
 import com.koreatech.kotrip_android.data.model.response.OptimalRouteResponseDto
@@ -76,7 +77,7 @@ interface KotripAuthApi {
         @Query("mapAY") ayLatitude: Double, // 경도
         @Query("mapBX") bxLongitude: Double,
         @Query("mapBY") byLatitude: Double,
-    ): BaseResponse<List<HotelResponseDto>>
+    ): BaseResponse<HotelBasicResponseDto>
 
     /**
      * 회원 탈퇴

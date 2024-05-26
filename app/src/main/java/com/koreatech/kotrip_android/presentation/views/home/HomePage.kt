@@ -208,7 +208,7 @@ fun HomePage(
                                                     onClick = {
                                                         val tourPosition =
                                                             LatLng(
-                                                                it.latitude - 0.005,
+                                                                it.latitude,
                                                                 it.longitude
                                                             )
                                                         cameraPositionState.position =
@@ -227,7 +227,7 @@ fun HomePage(
                                                     onClick = {
                                                         val tourPosition =
                                                             LatLng(
-                                                                it.latitude - 0.005,
+                                                                it.latitude,
                                                                 it.longitude
                                                             )
                                                         cameraPositionState.position =
@@ -331,7 +331,7 @@ fun HomePage(
                 ) {
                     if (isOneDay) {
                         oneDayTourInfo?.let {
-                            val position = LatLng(it.latitude - 0.1, it.longitude)
+                            val position = LatLng(it.latitude, it.longitude)
                             Marker(
                                 state = MarkerState(position),
                                 captionText = it.title,
@@ -343,7 +343,7 @@ fun HomePage(
                         }
                         if (oneDayTourList.isNotEmpty()) {
                             oneDayTourList.forEach {
-                                val position = LatLng(it.latitude - 0.1, it.longitude)
+                                val position = LatLng(it.latitude, it.longitude)
                                 Marker(
                                     state = MarkerState(position),
                                     captionText = it.title,

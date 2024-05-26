@@ -43,6 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -54,6 +55,7 @@ import com.bumptech.glide.Glide
 import com.koreatech.kotrip_android.R
 import com.koreatech.kotrip_android.data.model.response.HotelResponseDto
 import com.koreatech.kotrip_android.data.model.response.OptimalToursResponseDto
+import com.koreatech.kotrip_android.model.home.TourInfo
 import com.koreatech.kotrip_android.presentation.CustomMarker
 import com.koreatech.kotrip_android.presentation.common.UiState
 import com.koreatech.kotrip_android.presentation.components.HotelRow
@@ -93,6 +95,7 @@ fun HotelPage(
     context: Context,
     state: HotelState,
     position: Int,
+    flag: Boolean,
     firstRoutes: List<OptimalToursResponseDto>,
     secondRoutes: List<OptimalToursResponseDto>,
     paths: List<List<LatLng>>,
@@ -106,6 +109,57 @@ fun HotelPage(
     val cameraPositionState: CameraPositionState = rememberCameraPositionState {}
     var selectedId by remember {
         mutableStateOf(-1)
+    }
+    var hotelTitleVisible = remember {
+        mutableStateListOf<HotelResponseDto>()
+    }
+    hotelTitleVisible.clear()
+    when {
+        cameraPositionState.position.zoom < 8.0 -> {
+            hotelTitleVisible.clear()
+        }
+
+        cameraPositionState.position.zoom in 8.0..8.99999 -> {
+            hotels.take(hotels.size / 2 / 2 / 2 / 2 / 2 / 2).forEach {
+                hotelTitleVisible.add(it)
+            }
+        }
+
+        cameraPositionState.position.zoom in 9.0..9.99999 -> {
+            hotels.take(hotels.size / 2 / 2 / 2 / 2 / 2).forEach {
+                hotelTitleVisible.add(it)
+            }
+        }
+
+        cameraPositionState.position.zoom.toInt() in 10 until 11 -> {
+            hotels.take(hotels.size / 2 / 2 / 2 / 2).forEach {
+                hotelTitleVisible.add(it)
+            }
+        }
+
+        cameraPositionState.position.zoom.toInt() in 11 until 12 -> {
+            hotels.take(hotels.size / 2 / 2 / 2).forEach {
+                hotelTitleVisible.add(it)
+            }
+        }
+
+        cameraPositionState.position.zoom.toInt() in 12 until 13 -> {
+            hotels.take(hotels.size / 2 / 2).forEach {
+                hotelTitleVisible.add(it)
+            }
+        }
+
+        cameraPositionState.position.zoom.toInt() in 13 until 15 -> {
+            hotels.take(hotels.size / 2).forEach {
+                hotelTitleVisible.add(it)
+            }
+        }
+
+        else -> {
+            hotels.forEach {
+                hotelTitleVisible.add(it)
+            }
+        }
     }
 
     LaunchedEffect(key1 = Unit) {
@@ -125,6 +179,8 @@ fun HotelPage(
         mutableStateOf(false)
     }
 
+
+
     HotelDetailDialog(
         context = context,
         hotelInfo = hotelDetailInfo,
@@ -135,7 +191,9 @@ fun HotelPage(
     )
 
     Column(
-        modifier = Modifier.background(Color.White)
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
     ) {
         if (state.status == UiState.Loading) {
             Column(
@@ -171,35 +229,18 @@ fun HotelPage(
                 outlineWidth = 1.dp,
                 outlineColor = Orange_FFCD4C
             )
-            /**
-             * 테스트 중~ start
-             */
-//            hotels.forEachIndexed { index, hotel ->
-//                val markerPosition = LatLng(hotels[index].latitude, hotels[index].longitude)
-//                Marker(
-//                    state = MarkerState(markerPosition),
-//                    icon = OverlayImage.fromResource(R.drawable.ic_marker_circle),
-//                    onClick = {
-//                        hotelDetailInfo = hotels[index]
-//                        hotelDetailVisible = true
-//                        true
-//                    }
-//                )
-//            }
-            /**
-             * 테스트 중~ end
-             */
 
             hotels.forEachIndexed { index, hotelResponseDto ->
                 val markerPosition = LatLng(hotels[index].latitude, hotels[index].longitude)
                 Marker(
                     state = MarkerState(markerPosition),
-                    icon =OverlayImage.fromResource(R.drawable.location_pin),
+                    icon = OverlayImage.fromResource(R.drawable.location_pin),
                     onClick = {
                         hotelDetailInfo = hotels[index]
                         hotelDetailVisible = true
                         true
-                    }
+                    },
+                    captionText = if (hotelTitleVisible.contains(hotelResponseDto)) hotelResponseDto.title else ""
                 )
             }
 //            hotelImageBitmaps.forEachIndexed { index, bitmap ->
@@ -286,6 +327,27 @@ fun HotelPage(
             }
         }
         LazyColumn {
+            if (!flag) {
+                item {
+                    Column(
+                        modifier = Modifier.padding(10.dp)
+                    ) {
+                        Text(
+                            text = "호텔 어떤데?",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                        Text(
+                            text = "* 호텔을 추천합니다.",
+                            fontStyle = FontStyle.Italic,
+                            fontSize = 12.sp,
+                            color = Color.DarkGray
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                }
+            }
             itemsIndexed(hotels) { index, hotel ->
                 HotelRow(
                     context = context,
@@ -346,69 +408,32 @@ suspend fun loadHotelImageBitmaps(hotels: List<HotelResponseDto>, context: Conte
     return hotelImageBitmaps
 }
 
-//suspend fun createCircleBitmapFromUrl(url: String, context: Context): Bitmap? = withContext(
-//    Dispatchers.Default
-//) {
-//    // Glide를 이용해 이미지를 비트맵으로 다운로드
-//    try {
-//        val originalBitmap = Glide.with(context)
-//            .asBitmap()
-//            .load(url)
-//            .submit()
-//            .get()
-//
-//        val outputBitmap = Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888)
-//        val canvas = Canvas(outputBitmap)
-//        val paint = Paint()
-//
-//        val rect = Rect(0, 0, 50, 50)
-//        val rectF = RectF(rect)
-//
-//        // 이미지를 원형으로 가공하기 위해 Path를 사용
-//        val path = Path().apply {
-//            addCircle(25f, 25f, 24f, Path.Direction.CCW)
-//        }
-//
-//        // 원형 클리핑 적용
-//        canvas.clipPath(path)
-//
-//        // 원형 모양에 맞게 이미지를 캔버스에 그림
-//        paint.isAntiAlias = true
-//        canvas.drawBitmap(originalBitmap, null, rectF, paint)
-//
-//        // 가공된 비트맵 반환
-//        outputBitmap
-//    } catch (e: Exception) {
-//        e.printStackTrace()
-//        null
-//    }
-//}
+suspend fun createCircleBitmapFromUrl(url: String, context: Context): Bitmap? =
+    withContext(Dispatchers.IO) {
+        try {
+            // Glide로 이미지를 비트맵으로 다운로드하면서 크기 조정
+            val originalBitmap = Glide.with(context)
+                .asBitmap()
+                .load(url)
+                .submit(50, 50) // 크기를 미리 지정하여 메모리 사용 최적화
+                .get()
 
-suspend fun createCircleBitmapFromUrl(url: String, context: Context): Bitmap? = withContext(Dispatchers.IO) {
-    try {
-        // Glide로 이미지를 비트맵으로 다운로드하면서 크기 조정
-        val originalBitmap = Glide.with(context)
-            .asBitmap()
-            .load(url)
-            .submit(50, 50) // 크기를 미리 지정하여 메모리 사용 최적화
-            .get()
+            val outputBitmap = Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(outputBitmap)
+            val paint = Paint(Paint.ANTI_ALIAS_FLAG) // 안티 앨리어싱 설정
 
-        val outputBitmap = Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(outputBitmap)
-        val paint = Paint(Paint.ANTI_ALIAS_FLAG) // 안티 앨리어싱 설정
+            val rectF = RectF(0f, 0f, 50f, 50f)
 
-        val rectF = RectF(0f, 0f, 50f, 50f)
+            // 원형 클리핑 적용
+            canvas.drawOval(rectF, paint)
 
-        // 원형 클리핑 적용
-        canvas.drawOval(rectF, paint)
+            // 원형 모양에 맞게 이미지를 캔버스에 그림
+            paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
+            canvas.drawBitmap(originalBitmap, null, rectF, paint)
 
-        // 원형 모양에 맞게 이미지를 캔버스에 그림
-        paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
-        canvas.drawBitmap(originalBitmap, null, rectF, paint)
-
-        outputBitmap
-    } catch (e: Exception) {
-        e.printStackTrace()
-        null
+            outputBitmap
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
     }
-}
