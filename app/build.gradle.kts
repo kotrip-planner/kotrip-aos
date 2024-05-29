@@ -19,8 +19,8 @@ android {
         applicationId = "com.koreatech.kotrip_android"
         minSdk = 26
         targetSdk = 34
-        versionCode = 10030
-        versionName = "1.0.3"
+        versionCode = 10100
+        versionName = "1.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "kakao_native_app_key", getPropertyKey("kakao_native_app_key"))

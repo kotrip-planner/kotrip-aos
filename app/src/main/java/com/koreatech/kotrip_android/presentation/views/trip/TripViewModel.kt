@@ -37,9 +37,13 @@ class TripViewModel(
     }
 
     fun getCity() = intent {
-        val cityInfoList = kotripApi.getCity().toCityInfoList()
-        delay(2000)
-        reduce { state.copy(cities = cityInfoList) }
-        reduce { state.copy(status = UiState.Success) }
+        try {
+            val cityInfoList = kotripApi.getCity().toCityInfoList()
+            delay(2000)
+            reduce { state.copy(cities = cityInfoList) }
+            reduce { state.copy(status = UiState.Success) }
+        } catch (e: Exception) {
+            e.message
+        }
     }
 }

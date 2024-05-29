@@ -195,34 +195,6 @@ class HomeViewModel(
     }
 
 
-    fun getTour(pageNumber: Int) = intent {
-        withContext(Dispatchers.Default) {
-            if (_tours.value.isEmpty()) {
-                val tours =
-                    kotripApi.getTour(
-                        cityInfo?.areaId ?: 0,
-                        pageNumber
-                    ).data.list.map { it.toTourInfo() }
-                _tours.value = tours.toMutableList()
-                _page.value = 0
-//            reduce { state.copy(tours = tours) }
-                reduce { state.copy(status = UiState.Success) }
-            }
-        }
-    }
-
-    fun extraGetTour(pageNumber: Int) = intent {
-        reduce { state.copy(status = UiState.Loading) }
-        _page.value = pageNumber
-        val tours =
-            kotripApi.getTour(cityInfo?.areaId ?: 0, pageNumber).data.list.map { it.toTourInfo() }
-        val updatedTours = _tours.value
-        updatedTours.addAll(tours)
-        _tours.value = updatedTours
-        delay(2000)
-        reduce { state.copy(status = UiState.Success) }
-    }
-
     fun moveToOptimalPage() = intent {
         postSideEffect(HomeSideEffect.MoveToOptimalPage)
     }
@@ -234,15 +206,19 @@ class HomeViewModel(
     ) = intent {
         viewModelScope.launch {
             reduce { state.copy(status = UiState.Loading) }
-            val response =
-                kotripAuthApi.postOptimalRoutes(
-                    "$BEARER_PREFIX ${
-                        dataStoreImpl.getAccessToken().first().toString()
-                    }", GenerateScheduleRequestDto(title, areaId, optimalRoutes)
-                )
-            when (response.code) {
-                200 -> postSideEffect(HomeSideEffect.GenerateOptimal(response.data.uuid))
-                else -> postSideEffect(HomeSideEffect.Toast(response.message))
+            try {
+                val response =
+                    kotripAuthApi.postOptimalRoutes(
+                        "$BEARER_PREFIX ${
+                            dataStoreImpl.getAccessToken().first().toString()
+                        }", GenerateScheduleRequestDto(title, areaId, optimalRoutes)
+                    )
+                when (response.code) {
+                    200 -> postSideEffect(HomeSideEffect.GenerateOptimal(response.data.uuid))
+                    else -> postSideEffect(HomeSideEffect.Toast(response.message))
+                }
+            } catch (e: Exception) {
+
             }
         }
     }
@@ -254,15 +230,19 @@ class HomeViewModel(
     ) = intent {
         viewModelScope.launch {
             reduce { state.copy(status = UiState.Loading) }
-            val response =
-                kotripAuthApi.postOptimalRouteDay(
-                    "$BEARER_PREFIX ${
-                        dataStoreImpl.getAccessToken().first().toString()
-                    }", DayGenerateScheduleRequestDto(title, areaId, optimalRoutes)
-                )
-            when (response.code) {
-                200 -> postSideEffect(HomeSideEffect.GenerateOptimal(response.data.uuid))
-                else -> postSideEffect(HomeSideEffect.Toast(response.message))
+            try {
+                val response =
+                    kotripAuthApi.postOptimalRouteDay(
+                        "$BEARER_PREFIX ${
+                            dataStoreImpl.getAccessToken().first().toString()
+                        }", DayGenerateScheduleRequestDto(title, areaId, optimalRoutes)
+                    )
+                when (response.code) {
+                    200 -> postSideEffect(HomeSideEffect.GenerateOptimal(response.data.uuid))
+                    else -> postSideEffect(HomeSideEffect.Toast(response.message))
+                }
+            } catch (e: Exception) {
+                e.message
             }
         }
     }
@@ -271,15 +251,19 @@ class HomeViewModel(
         uuid: String,
     ) = intent {
         viewModelScope.launch {
-            val optimalRoutes = kotripAuthApi.getSchedule(
-                "$BEARER_PREFIX ${
-                    dataStoreImpl.getAccessToken().first().toString()
-                }", ScheduleRequest(uuid)
-            )
-            reduce { state.copy(status = UiState.Success) }
-            when (optimalRoutes.code) {
-                200 -> postSideEffect(HomeSideEffect.GetOptimalData(optimalRoutes.data))
-                else -> postSideEffect(HomeSideEffect.Toast(optimalRoutes.message))
+            try {
+                val optimalRoutes = kotripAuthApi.getSchedule(
+                    "$BEARER_PREFIX ${
+                        dataStoreImpl.getAccessToken().first().toString()
+                    }", ScheduleRequest(uuid)
+                )
+                reduce { state.copy(status = UiState.Success) }
+                when (optimalRoutes.code) {
+                    200 -> postSideEffect(HomeSideEffect.GetOptimalData(optimalRoutes.data))
+                    else -> postSideEffect(HomeSideEffect.Toast(optimalRoutes.message))
+                }
+            } catch (e: Exception) {
+                e.message
             }
         }
     }

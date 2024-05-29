@@ -27,6 +27,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.koreatech.kotrip_android.R
 import com.koreatech.kotrip_android.model.home.TourInfo
+import timber.log.Timber
 
 @Composable
 fun KotripTourRow(
@@ -57,7 +58,12 @@ fun KotripTourRow(
                 contentDescription = null,
                 modifier = modifier
                     .size(50.dp)
-                    .clip(CircleShape)
+                    .clip(CircleShape),
+                onError = {
+                    Timber.e("aaa ${it.result.throwable}")
+                    Timber.e("aaa ${it.result.throwable.message}")
+                    Timber.e("aaa ${it.result.throwable.cause}")
+                }
             )
             Spacer(modifier = Modifier.height(5.dp))
             Text(

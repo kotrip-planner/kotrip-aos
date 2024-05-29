@@ -8,6 +8,7 @@ import androidx.paging.PagingState
 import androidx.paging.map
 import com.koreatech.kotrip_android.api.KotripApi
 import com.koreatech.kotrip_android.data.mapper.toTourInfo
+import com.koreatech.kotrip_android.data.model.response.TourBaseInfoResponseDto
 import com.koreatech.kotrip_android.data.model.response.TourInfoResponseDto
 import com.koreatech.kotrip_android.model.home.TourInfo
 import kotlinx.coroutines.flow.Flow
@@ -40,7 +41,12 @@ class TourPagingSource(
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, TourInfo> {
         val page = params.key ?: 0
-        val data = kotripApi.getTour(cityId, page).data
+        val data: TourBaseInfoResponseDto
+        try {
+            data = kotripApi.getTour(cityId, page).data
+        }catch (e: Exception) {
+            return LoadResult.Error(e)
+        }
         return LoadResult.Page(
             data = data.list.map { it.toTourInfo() },
             prevKey = if (page == 0) null else page - 1,

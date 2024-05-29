@@ -42,7 +42,6 @@ class LoginViewModel(
                             postSideEffect(sideEffect = LoginSideEffect.Completed)
                         }.onFailure {
                             reduce { state.copy(status = UiState.Failed) }
-                            Log.e("aaa", "kakao fail error : ${it.message}")
                             Timber.e("aaa error :${it.message}")
                             postSideEffect(sideEffect = LoginSideEffect.Toast(it.message ?: ""))
                         }
