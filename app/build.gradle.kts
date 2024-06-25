@@ -47,8 +47,16 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             signingConfig = signingConfigs.getByName("release")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+        debug {
+            isMinifyEnabled = true
+            signingConfig = signingConfigs.getByName("debug")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -161,6 +169,9 @@ dependencies {
     // paging
     implementation ("androidx.paging:paging-runtime:3.3.0")
     implementation ("androidx.paging:paging-compose:1.0.0-alpha16")
+
+    implementation ("com.squareup.retrofit2:retrofit:2.3.0")
+    implementation ("com.squareup.retrofit2:adapter-rxjava2:2.3.0")
 }
 
 fun getPropertyKey(propertyKey: String): String {

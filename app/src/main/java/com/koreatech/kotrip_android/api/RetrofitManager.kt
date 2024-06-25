@@ -1,9 +1,12 @@
 package com.koreatech.kotrip_android.api
 
 import com.koreatech.kotrip_android.BuildConfig
+import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.CallAdapter
 import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
@@ -40,6 +43,7 @@ object RetrofitManager {
             .baseUrl("https://naveropenapi.apigw.ntruss.com")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
             .build()
 
     inline fun <reified T> create(): T =
